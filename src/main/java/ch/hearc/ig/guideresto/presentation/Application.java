@@ -4,6 +4,7 @@ import ch.hearc.ig.guideresto.business.*;
 import ch.hearc.ig.guideresto.persistence.FakeItems;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,6 +26,24 @@ public class Application {
         try {
             EntityManagerFactory emf = Persistence.createEntityManagerFactory("guideRestoJPA");
             EntityManager em = emf.createEntityManager();
+            EntityTransaction tx = em.getTransaction();
+
+            /*
+            Essais pour l'exercice 2. Hibernate a bien généré des requêtes SQL.
+            tx.begin();
+
+            RestaurantType restauType = em.find(RestaurantType.class, 1);
+            em.remove(restauType);
+            RestaurantType restaurantType = new RestaurantType();
+            restaurantType.setLabel("Fast Food");
+            restaurantType.setDescription("Nourriture rapide");
+
+            em.persist(restaurantType);
+
+
+            tx.commit();
+             */
+
             em.close();
             emf.close();
             System.out.println("OK");

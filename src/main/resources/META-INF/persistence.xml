@@ -19,3 +19,5 @@
         <class>ch.hearc.ig.guideresto.business.RestaurantType</class>
     </persistence-unit>
 </persistence>
+
+
