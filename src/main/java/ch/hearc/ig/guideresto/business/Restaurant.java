@@ -34,7 +34,7 @@ public class Restaurant implements IBusinessObject {
     @Transient
     private Set<Evaluation> evaluations;
 
-    @Transient
+    @Embedded
     private Localisation address;
 
     @ManyToOne(fetch = FetchType.EAGER)

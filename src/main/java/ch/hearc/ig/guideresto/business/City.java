@@ -26,7 +26,7 @@ public class City implements IBusinessObject {
     @Column(name = "NOM_VILLE", nullable = false)
     private String cityName;
 
-    @Transient
+    @OneToMany(mappedBy = "address.city")
     private Set<Restaurant> restaurants;
 
     public City() {

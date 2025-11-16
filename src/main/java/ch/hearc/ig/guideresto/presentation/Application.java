@@ -28,7 +28,47 @@ public class Application {
             EntityManager em = emf.createEntityManager();
             EntityTransaction tx = em.getTransaction();
 
+            tx.begin();
             /*
+            //essai ex3 villes, type, restaurants
+            // Charger type et ville
+            RestaurantType type = em.find(RestaurantType.class, 3);
+            City city = em.find(City.class, 2);
+
+            // Localisation
+            Localisation adr = new Localisation();
+            adr.setStreet("Rue de la Serre 5");
+            adr.setCity(city);
+
+            // Charger restaurant existant
+            Restaurant restaurant = em.find(Restaurant.class, 1); // <-- Mets un ID qui existe
+
+            if (restaurant == null) {
+                System.out.println("⚠ Restaurant introuvable !");
+                tx.rollback();
+                return;
+            }
+
+            // Mise à jour
+            restaurant.setAddress(adr);
+            restaurant.setType(type);
+
+            tx.commit();
+
+            // =================== TEST =====================
+            Restaurant r2 = em.find(Restaurant.class, restaurant.getId());
+
+            System.out.println("\n===== TEST RESTAURANT =====");
+            System.out.println("Nom : " + r2.getName());
+            System.out.println("Type : " + r2.getType().getLabel());
+            System.out.println("Ville : " + r2.getAddress().getCity().getCityName());
+            System.out.println("Rue : " + r2.getAddress().getStreet());
+
+            em.close();
+
+            System.out.println("\nOK ✓");
+
+
             Essais pour l'exercice 2. Hibernate a bien généré des requêtes SQL.
             tx.begin();
 
