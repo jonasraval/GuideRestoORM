@@ -27,7 +27,7 @@ public class RestaurantType implements IBusinessObject {
     @Column(name = "DESCRIPTION", nullable = false)
     private String description;
 
-    @Transient
+    @OneToMany(mappedBy = "type")
     private Set<Restaurant> restaurants;
 
     public RestaurantType() {

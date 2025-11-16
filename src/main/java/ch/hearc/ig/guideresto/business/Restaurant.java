@@ -37,7 +37,8 @@ public class Restaurant implements IBusinessObject {
     @Transient
     private Localisation address;
 
-    @Transient
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "fk_type", nullable = false)
     private RestaurantType type;
 
     public Restaurant() {
