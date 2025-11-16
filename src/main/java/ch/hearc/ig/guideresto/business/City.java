@@ -17,6 +17,7 @@ public class City implements IBusinessObject {
             strategy = GenerationType.SEQUENCE,
             generator = "SEQ_VILLES"
     )
+    @Column(name = "NUMERO")
     private Integer id;
 
     @Column(name = "CODE_POSTAL", nullable = false, unique = true, length = 4)
