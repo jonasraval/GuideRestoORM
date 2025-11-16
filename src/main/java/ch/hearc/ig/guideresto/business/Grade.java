@@ -1,14 +1,31 @@
 package ch.hearc.ig.guideresto.business;
 
+import jakarta.persistence.*;
+
 /**
  * @author cedric.baudet
  */
+
+@Entity
+@Table(name="NOTES")
 public class Grade implements IBusinessObject {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,
+                    generator = "SEQ_NOTES"
+    )
+    @Column(name="NUMERO")
     private Integer id;
+
+    @Column(name="NOTE")
     private Integer grade;
+
+    @Transient
     private CompleteEvaluation evaluation;
+
+    @Transient
     private EvaluationCriteria criteria;
+
 
     public Grade() {
         this(null, null, null);
