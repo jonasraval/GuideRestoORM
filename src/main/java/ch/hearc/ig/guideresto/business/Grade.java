@@ -20,10 +20,12 @@ public class Grade implements IBusinessObject {
     @Column(name="NOTE")
     private Integer grade;
 
-    @Transient
+    @ManyToOne
+    @JoinColumn(name="FK_COMM", nullable = false)
     private CompleteEvaluation evaluation;
 
-    @Transient
+    @ManyToOne
+    @JoinColumn(name="FK_CRIT", nullable = false)
     private EvaluationCriteria criteria;
 
 
