@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(name="COMMENTAIRES")
 public class CompleteEvaluation extends Evaluation {
 
     @Column(name="COMMENTAIRE", nullable=false)

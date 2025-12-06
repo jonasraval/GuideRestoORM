@@ -29,6 +29,26 @@ public class Application {
             EntityTransaction tx = em.getTransaction();
 
             tx.begin();
+
+            /*
+            System.out.println("Debut test");
+            Restaurant monRestaurant = em.find(Restaurant.class, 21);
+            System.out.println(monRestaurant.getName());
+
+
+            Set<Evaluation> mesEvaluations = monRestaurant.getEvaluations();
+            for (Evaluation evaluation : mesEvaluations) {
+                System.out.println(evaluation.getClass().getSimpleName() + "  " + evaluation.getId());
+            } //lazy loading transformé en eager loading malgré OneToMany côté Restaurant pour Evaluations à cause de la stratégie d'héritage ?
+            */
+
+            tx.commit();
+
+
+
+
+
+
             /*
             //essai ex3 villes, type, restaurants
             // Charger type et ville

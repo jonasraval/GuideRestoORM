@@ -31,7 +31,7 @@ public class Restaurant implements IBusinessObject {
     @Column(name = "SITE_WEB")
     private String website;
 
-    @OneToMany(mappedBy = "restaurant") //???????????
+    @OneToMany(mappedBy = "restaurant")
     private Set<Evaluation> evaluations;
 
     @Embedded
