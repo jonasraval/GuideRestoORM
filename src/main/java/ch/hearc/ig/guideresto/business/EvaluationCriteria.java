@@ -24,10 +24,6 @@ public class EvaluationCriteria implements IBusinessObject {
     @Column(name="DESCRIPTION")
     private String description;
 
-    //??????????????????
-    @OneToMany(mappedBy="criteria")
-    private List<Grade> grades;
-
     public EvaluationCriteria() {
         this(null, null);
     }

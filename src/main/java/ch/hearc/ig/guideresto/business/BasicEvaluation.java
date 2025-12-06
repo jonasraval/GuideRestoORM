@@ -10,7 +10,6 @@ import java.util.Date;
  * @author cedric.baudet
  */
 @Entity
-@Table(name="LIKES")
 public class BasicEvaluation extends Evaluation {
 
     @Column(name="APPRECIATION", nullable=false)
