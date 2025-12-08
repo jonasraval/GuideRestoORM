@@ -1,6 +1,7 @@
 package ch.hearc.ig.guideresto.presentation;
 
 import ch.hearc.ig.guideresto.business.*;
+import ch.hearc.ig.guideresto.persistence.BasicEvaluationMapper;
 import ch.hearc.ig.guideresto.persistence.FakeItems;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -12,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.util.*;
+import ch.hearc.ig.guideresto.persistence.*;
 
 /**
  * @author cedric.baudet
@@ -30,7 +32,14 @@ public class Application {
 
             tx.begin();
 
+            BasicEvaluationMapper BEM = new BasicEvaluationMapper(BasicEvaluation.class, em);
+
+            Long count = BEM.countLikesForRestaurant(21);
+            System.out.println("Likes restau 21: " + count);
+
             /*
+
+
             System.out.println("Debut test");
             Restaurant monRestaurant = em.find(Restaurant.class, 21);
             System.out.println(monRestaurant.getName());
@@ -40,7 +49,7 @@ public class Application {
             for (Evaluation evaluation : mesEvaluations) {
                 System.out.println(evaluation.getClass().getSimpleName() + "  " + evaluation.getId());
             } //lazy loading transformé en eager loading malgré OneToMany côté Restaurant pour Evaluations à cause de la stratégie d'héritage ?
-            */
+
 
             tx.commit();
 
@@ -49,7 +58,7 @@ public class Application {
 
 
 
-            /*
+
             //essai ex3 villes, type, restaurants
             // Charger type et ville
             RestaurantType type = em.find(RestaurantType.class, 3);
@@ -100,12 +109,14 @@ public class Application {
 
             em.persist(restaurantType);
 
+             */
 
             tx.commit();
-             */
+
 
             em.close();
             emf.close();
+
             System.out.println("OK");
         } catch (Exception e){
             System.err.println("Erreur");

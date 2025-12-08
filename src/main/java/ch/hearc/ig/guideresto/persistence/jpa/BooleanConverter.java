@@ -8,11 +8,11 @@ public class BooleanConverter implements AttributeConverter<Boolean, String> {
 
   @Override
   public String convertToDatabaseColumn(Boolean value) {
-    return Boolean.TRUE.equals(value) ? "T" : "F";
+    return Boolean.TRUE.equals(value) ? "Y" : "N";
   }
 
   @Override
   public Boolean convertToEntityAttribute(String s) {
-    return s.equalsIgnoreCase("T");
+    return s.equalsIgnoreCase("Y");
   }
 }
