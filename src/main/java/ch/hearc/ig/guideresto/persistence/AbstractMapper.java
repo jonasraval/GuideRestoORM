@@ -1,6 +1,7 @@
 package ch.hearc.ig.guideresto.persistence;
 
 import ch.hearc.ig.guideresto.business.IBusinessObject;
+import jakarta.persistence.EntityManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -9,117 +10,42 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public abstract class AbstractMapper<T extends IBusinessObject> {
 
-    protected static final Logger logger = LogManager.getLogger();
+    protected EntityManager em;
+    private final Class<T> type;
 
-    public abstract T findById(int id);
-    public abstract Set<T> findAll();
-    public abstract T create(T object);
-    public abstract boolean update(T object);
-    public abstract boolean delete(T object);
-    public abstract boolean deleteById(int id);
-
-    protected abstract String getSequenceQuery();
-    protected abstract String getExistsQuery();
-    protected abstract String getCountQuery();
-
-    /**
-     * Vérifie si un objet avec l'ID donné existe.
-     * @param id the ID to check
-     * @return true si l'objet existe, false sinon
-     */
-    public boolean exists(int id) {
-        Connection connection = ConnectionUtils.getConnection();
-
-        try (PreparedStatement stmt = connection.prepareStatement(getExistsQuery())) {
-            stmt.setInt(1, id);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next();
-            }
-        } catch (SQLException ex) {
-            logger.error("SQLException: {}", ex.getMessage());
-        }
-        return false;
+    protected AbstractMapper(Class<T> type, EntityManager em) {
+        this.type = type;
+        this.em = em;
     }
 
-    /**
-     * Compte le nombre d'objets en base de données.
-     * @return
-     */
-    public int count() {
-        Connection connection = ConnectionUtils.getConnection();
+    public T findById(Integer id) {
+        return em.createNamedQuery(type.getSimpleName()+".findById",type)
+                .setParameter("id", id)
+                .getSingleResult();
+    } //possible de faire avec un em.find(type, id) mais il nous est demandé d'utiliser JPQL
 
-        try (PreparedStatement stmt = connection.prepareStatement(getCountQuery());
-             ResultSet rs = stmt.executeQuery()) {
+    public List<T> findAll() {
+        return em.createNamedQuery(type.getSimpleName()+".findAll",type).getResultList();
+    }
 
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-            return 0;
-        } catch (SQLException ex) {
-            logger.error("SQLException: {}", ex.getMessage());
-            return 0;
+    public T save(T entity) {
+        if (entity.getId() == null) {
+            em.persist(entity);
+            return entity;
+        } else {
+            return em.merge(entity);
         }
     }
 
-    /**
-     * Obtient la valeur de la séquence actuelle en base de données
-     * @return Le nombre de villes
-     * @En cas d'erreur SQL
-     */
-    protected Integer getSequenceValue() {
-        Connection connection = ConnectionUtils.getConnection();
-
-        try (PreparedStatement stmt = connection.prepareStatement(getSequenceQuery());
-             ResultSet rs = stmt.executeQuery()) {
-
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-            return 0;
-        } catch (SQLException ex) {
-            logger.error("SQLException: {}", ex.getMessage());
-            return 0;
-        }
-    }
-
-    /**
-     * Vérifie si le cache est actuellement vide
-     * @return true si le cache ne contient aucun objet, false sinon
-     */
-    protected boolean isCacheEmpty() {
-        // TODO à implémenter par vos soins
-        throw new UnsupportedOperationException("Vous devez implémenter votre cache vous-même !");
-    }
-
-    /**
-     * Vide le cache
-     */
-    protected void resetCache() {
-        // TODO à implémenter par vos soins
-        throw new UnsupportedOperationException("Vous devez implémenter votre cache vous-même !");
-    }
-
-    /**
-     * Ajoute un objet au cache
-     * @param objet l'objet à ajouter
-     */
-    protected void addToCache(T objet) {
-        // TODO à implémenter par vos soins
-        throw new UnsupportedOperationException("Vous devez implémenter votre cache vous-même !");
-    }
-
-    /**
-     * Retire un objet du cache
-     * @param id l'ID de l'objet à retirer du cache
-     */
-    protected void removeFromCache(Integer id) {
-        // TODO à implémenter par vos soins
-        throw new UnsupportedOperationException("Vous devez implémenter votre cache vous-même !");
+    public void delete(T entity) {
+        em.remove(em.contains(entity)
+                ? entity //on remove si elle est déjà gérée
+                : em.merge(entity)); //sinon on la merge avanT de la remove
     }
 }

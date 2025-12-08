@@ -1,6 +1,7 @@
 package ch.hearc.ig.guideresto.presentation;
 
 import ch.hearc.ig.guideresto.business.*;
+import ch.hearc.ig.guideresto.persistence.CompleteEvaluationMapper;
 import ch.hearc.ig.guideresto.persistence.FakeItems;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -29,6 +30,14 @@ public class Application {
             EntityTransaction tx = em.getTransaction();
 
             tx.begin();
+
+            /*
+            CompleteEvaluationMapper CEM = new CompleteEvaluationMapper(CompleteEvaluation.class, em);
+
+            CompleteEvaluation testEval = CEM.findById(41);
+            CEM.delete(testEval);
+
+             */
 
             /*
             System.out.println("Debut test");
