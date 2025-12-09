@@ -11,6 +11,12 @@ import java.util.Set;
 
 @Entity
 @Table(name = "TYPES_GASTRONOMIQUES")
+@NamedQueries({
+        @NamedQuery(name = "RestaurantType.findAll",
+                query = "SELECT rt FROM RestaurantType rt" ),
+        @NamedQuery(name = "RestaurantType.findById",
+                query = "SELECT rt FROM RestaurantType rt WHERE rt.id=:id")
+})
 public class RestaurantType implements IBusinessObject {
 
     @Id
@@ -47,7 +53,7 @@ public class RestaurantType implements IBusinessObject {
 
     @Override
     public String toString() {
-        return label;
+        return "Type{id=" + id + ", name='" + label + "'}";
     }
 
     public Integer getId() {
@@ -81,5 +87,4 @@ public class RestaurantType implements IBusinessObject {
     public void setRestaurants(Set<Restaurant> restaurants) {
         this.restaurants = restaurants;
     }
-
 }
