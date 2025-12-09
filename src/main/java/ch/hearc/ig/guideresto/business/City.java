@@ -11,6 +11,13 @@ import java.util.Set;
 
 @Entity
 @Table(name="VILLES")
+@NamedQueries({
+        @NamedQuery(name = "City.findAll",
+                query = "SELECT c FROM City c"),
+        @NamedQuery(name = "City.findById",
+                query = "SELECT c FROM City c WHERE c.id=:id")
+})
+
 public class City implements IBusinessObject {
     @Id
     @GeneratedValue(
@@ -76,4 +83,8 @@ public class City implements IBusinessObject {
         this.restaurants = restaurants;
     }
 
+    @Override
+    public String toString() {
+        return "City{id=" + id + ", name='" + cityName + "'}";
+    }
 }
