@@ -15,6 +15,11 @@ import java.util.Set;
 public class Restaurant implements IBusinessObject {
 
     @Id
+    @SequenceGenerator(
+            name = "SEQ_RESTAURANTS",
+            sequenceName = "SEQ_RESTAURANTS",
+            allocationSize = 1
+    )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "SEQ_RESTAURANTS"

@@ -37,6 +37,9 @@ public class Application {
             Long count = BEM.countLikesForRestaurant(21);
             System.out.println("Likes restau 21: " + count);
 
+            //BasicEvaluation basicEvalToDelete = BEM.findById(11);
+            //BEM.delete(basicEvalToDelete);
+
             /*
 
 

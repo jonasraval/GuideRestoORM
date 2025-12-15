@@ -12,6 +12,11 @@ import java.util.List;
 public class EvaluationCriteria implements IBusinessObject {
 
     @Id
+    @SequenceGenerator(
+            name = "SEQ_CRITERES_EVALUATION",
+            sequenceName = "SEQ_CRITERES_EVALUATION",
+            allocationSize = 1
+    )
     @GeneratedValue(strategy = GenerationType.SEQUENCE,
                     generator = "SEQ_CRITERES_EVALUATION"
     )

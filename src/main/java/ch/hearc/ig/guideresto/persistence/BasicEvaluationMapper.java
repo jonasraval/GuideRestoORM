@@ -16,5 +16,6 @@ public class BasicEvaluationMapper extends AbstractMapper<BasicEvaluation>{
                 .setParameter("restaurantId", restaurantId)
                 .setParameter("like", true)
                 .getSingleResult();
+
     }
 }

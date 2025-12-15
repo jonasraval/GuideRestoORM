@@ -13,6 +13,11 @@ import java.util.Set;
 @Table(name="VILLES")
 public class City implements IBusinessObject {
     @Id
+    @SequenceGenerator(
+            name = "SEQ_VILLES",
+            sequenceName = "SEQ_VILLES",
+            allocationSize = 1
+    )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "SEQ_VILLES"
