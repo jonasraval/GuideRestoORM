@@ -8,11 +8,24 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name="NOTES")
+@NamedQueries({
+        @NamedQuery(name="Grade.findAll",
+                query="SELECT g FROM Grade g"),
+        @NamedQuery(name="Grade.findById",
+                query="SELECT g FROM Grade g WHERE g.id=:id"),
+        @NamedQuery(name = "Grade.findByEvaluationId",
+                query = "SELECT g FROM Grade g WHERE g.evaluation.id = :evaluationId")
+})
 public class Grade implements IBusinessObject {
 
     @Id
+    @SequenceGenerator(
+            name = "SEQ_NOTES",
+            sequenceName = "SEQ_NOTES",
+            allocationSize = 1
+    )
     @GeneratedValue(strategy = GenerationType.SEQUENCE,
-                    generator = "SEQ_NOTES"
+            generator = "SEQ_NOTES"
     )
     @Column(name="NUMERO")
     private Integer id;
