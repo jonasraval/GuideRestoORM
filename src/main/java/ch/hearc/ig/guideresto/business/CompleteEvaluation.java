@@ -12,6 +12,13 @@ import java.util.Set;
 
 @Entity
 @Table(name="COMMENTAIRES")
+@NamedQueries({
+        @NamedQuery(name="CompleteEvaluation.findAll",
+                query="SELECT ce FROM CompleteEvaluation ce"),
+        @NamedQuery(name="CompleteEvaluation.findById",
+                query="SELECT ce FROM CompleteEvaluation ce WHERE ce.id=:id")
+})
+
 public class CompleteEvaluation extends Evaluation {
 
     @Column(name="COMMENTAIRE", nullable=false)
