@@ -7,6 +7,12 @@ import java.util.List;
 /**
  * @author cedric.baudet
  */
+@NamedQueries({
+        @NamedQuery(name = "EvaluationCriteria.findAll",
+                query = "SELECT ec FROM EvaluationCriteria ec"),
+        @NamedQuery(name = "EvaluationCriteria.findById",
+                query = "SELECT ec FROM EvaluationCriteria ec WHERE ec.id=:id"),
+})
 @Entity
 @Table(name="CRITERES_EVALUATION")
 public class EvaluationCriteria implements IBusinessObject {
@@ -18,7 +24,7 @@ public class EvaluationCriteria implements IBusinessObject {
             allocationSize = 1
     )
     @GeneratedValue(strategy = GenerationType.SEQUENCE,
-                    generator = "SEQ_CRITERES_EVALUATION"
+            generator = "SEQ_CRITERES_EVALUATION"
     )
     @Column(name="NUMERO", nullable=false)
     private Integer id;
