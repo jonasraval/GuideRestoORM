@@ -12,6 +12,18 @@ import java.util.Set;
 
 @Entity
 @Table(name = "RESTAURANTS")
+@NamedQueries({
+        @NamedQuery(name = "Restaurant.findAll",
+                query = "SELECT r FROM Restaurant r"),
+        @NamedQuery(name = "Restaurant.findById",
+                query = "SELECT r FROM Restaurant r WHERE r.id=:id"),
+        @NamedQuery(name = "Restaurant.findByCity",
+                query = "SELECT r FROM Restaurant r WHERE r.address.city=:city"),
+        @NamedQuery(name = "Restaurant.findByType",
+                query = "SELECT r FROM Restaurant r WHERE r.type=:type"),
+        @NamedQuery(name = "Restaurant.findByName",
+                query = "SELECT r FROM Restaurant r WHERE r.name=:name")
+})
 public class Restaurant implements IBusinessObject {
 
     @Id
@@ -128,5 +140,18 @@ public class Restaurant implements IBusinessObject {
 
     public boolean hasEvaluations() {
         return CollectionUtils.isNotEmpty(evaluations);
+    }
+
+    @Override
+    public String toString() {
+        return "Restaurant{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", website='" + website + '\'' +
+                ", address=" + address +
+                ", type=" + type +
+                ", evaluationsCount=" + (evaluations != null ? evaluations.size() : 0) +
+                '}';
     }
 }
