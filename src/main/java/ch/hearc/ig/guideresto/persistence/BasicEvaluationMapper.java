@@ -1,13 +1,12 @@
 package ch.hearc.ig.guideresto.persistence;
 
 import ch.hearc.ig.guideresto.business.BasicEvaluation;
-import ch.hearc.ig.guideresto.business.Restaurant;
 import jakarta.persistence.EntityManager;
 
 public class BasicEvaluationMapper extends AbstractMapper<BasicEvaluation>{
 
     //mis en 'public' pour tests
-    public BasicEvaluationMapper(Class<BasicEvaluation> type, EntityManager em) {
+    protected BasicEvaluationMapper(Class<BasicEvaluation> type, EntityManager em) {
         super(type, em);
     }
 

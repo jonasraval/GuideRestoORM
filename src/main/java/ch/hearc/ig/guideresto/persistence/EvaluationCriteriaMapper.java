@@ -4,7 +4,7 @@ import ch.hearc.ig.guideresto.business.EvaluationCriteria;
 import jakarta.persistence.EntityManager;
 
 public class EvaluationCriteriaMapper extends AbstractMapper<EvaluationCriteria> {
-    public EvaluationCriteriaMapper(Class<EvaluationCriteria> type, EntityManager em) {
+    protected EvaluationCriteriaMapper(Class<EvaluationCriteria> type, EntityManager em) {
         super(type, em);
     }
 }

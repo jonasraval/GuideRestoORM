@@ -5,7 +5,7 @@ import jakarta.persistence.EntityManager;
 
 public class RestaurantTypeMapper extends AbstractMapper<RestaurantType> {
 
-    public RestaurantTypeMapper(Class<RestaurantType> type, EntityManager em) {
+    protected RestaurantTypeMapper(Class<RestaurantType> type, EntityManager em) {
         super(type, em);
     }
 }

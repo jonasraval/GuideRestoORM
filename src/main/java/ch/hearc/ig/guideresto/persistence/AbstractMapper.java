@@ -2,18 +2,10 @@ package ch.hearc.ig.guideresto.persistence;
 
 import ch.hearc.ig.guideresto.business.IBusinessObject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 
 public abstract class AbstractMapper<T extends IBusinessObject> {
     protected EntityManager em;
@@ -30,8 +22,8 @@ public abstract class AbstractMapper<T extends IBusinessObject> {
                 .getSingleResult();
     } //possible de faire avec un em.find(type, id) mais il nous est demandé d'utiliser JPQL
 
-    public List<T> findAll() {
-        return em.createNamedQuery(type.getSimpleName()+".findAll",type).getResultList();
+    public Set<T> findAll() {
+        return em.createNamedQuery(type.getSimpleName()+".findAll",type).getResultStream().collect(Collectors.toUnmodifiableSet());
     }
 
     public T save(T entity) {
