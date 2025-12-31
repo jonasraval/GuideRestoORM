@@ -79,11 +79,7 @@ public class RestaurantService implements IRestaurantService {
 
     @Override
     public void updateRestaurant(Restaurant restaurant) throws Exception {
-        JpaUtils.inTransaction(em ->{
-            Restaurant managed = managed(em, restaurant, Restaurant.class);
-            restaurantMapper.update(managed);
-        });
-
+        //A faire
     }
 
     @Override
@@ -104,11 +100,6 @@ public class RestaurantService implements IRestaurantService {
     @Override
     public City createCity(String ZipCode, String cityName) throws Exception {
         return null;
-    }
-
-    private <T> T managed(EntityManager em, T entity, Class<T> clazz) {
-        if (entity == null) return null;
-        return em.contains(entity) ? entity : em.merge(entity);
     }
 
 }
