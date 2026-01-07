@@ -18,14 +18,15 @@ import java.util.Set;
         @NamedQuery(name = "Restaurant.findById",
                 query = "SELECT r FROM Restaurant r WHERE r.id=:id"),
         @NamedQuery(name = "Restaurant.findByCity",
-                query = "SELECT r FROM Restaurant r WHERE r.address.city=:city"),
+                query = "SELECT r FROM Restaurant r WHERE LOWER(r.address.city.cityName) = LOWER(:cityName)"),
         @NamedQuery(name = "Restaurant.findByType",
-                query = "SELECT r FROM Restaurant r WHERE r.type=:type"),
+                query = "SELECT r FROM Restaurant r WHERE LOWER(r.type.label) = LOWER(:label)"),
         @NamedQuery(name = "Restaurant.findByName",
-                query = "SELECT r FROM Restaurant r WHERE r.name=:name")
+                query = "SELECT r FROM Restaurant r WHERE LOWER(r.name) LIKE LOWER(:name)"),
+        @NamedQuery(name = "Restaurant.findByExactName",
+                query = "SELECT r FROM Restaurant r WHERE LOWER(r.name) = LOWER(:name)")
 })
 public class Restaurant implements IBusinessObject {
-
     @Id
     @SequenceGenerator(
             name = "SEQ_RESTAURANTS",

@@ -5,6 +5,7 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class JpaUtils {
 
@@ -37,4 +38,22 @@ public class JpaUtils {
             throw ex;
         }
     }
+
+    public static <T> T inTransactionWithResult(Function<EntityManager, T> function) {
+        EntityManager em = JpaUtils.getEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+        try {
+            transaction.begin();
+            T result = function.apply(em);
+            em.flush();
+            transaction.commit();
+            return result;
+        } catch (Exception ex) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw ex;
+        }
+    }
+
 }

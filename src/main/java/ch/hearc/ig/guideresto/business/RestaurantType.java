@@ -15,7 +15,9 @@ import java.util.Set;
         @NamedQuery(name = "RestaurantType.findAll",
                 query = "SELECT rt FROM RestaurantType rt" ),
         @NamedQuery(name = "RestaurantType.findById",
-                query = "SELECT rt FROM RestaurantType rt WHERE rt.id=:id")
+                query = "SELECT rt FROM RestaurantType rt WHERE rt.id=:id"),
+        @NamedQuery(name = "RestaurantType.findByLabel",
+                query = "SELECT rt FROM RestaurantType rt WHERE rt.label=:label")
 })
 public class RestaurantType implements IBusinessObject {
 

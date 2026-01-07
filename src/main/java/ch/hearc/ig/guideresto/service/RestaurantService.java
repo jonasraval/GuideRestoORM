@@ -13,16 +13,16 @@ import java.util.Set;
 
 public class RestaurantService implements IRestaurantService {
 
+
     private final RestaurantMapper restaurantMapper;
     private final RestaurantTypeMapper restaurantTypeMapper;
     private final CityMapper cityMapper;
 
-    public RestaurantService(RestaurantMapper restaurantMapper,
-                             RestaurantTypeMapper restaurantTypeMapper,
-                             CityMapper cityMapper) {
-        this.restaurantMapper = restaurantMapper;
-        this.restaurantTypeMapper = restaurantTypeMapper;
-        this.cityMapper = cityMapper;
+    private RestaurantService() {
+        EntityManager em = JpaUtils.getEntityManager();
+        this.restaurantMapper = new RestaurantMapper(Restaurant.class, em);
+        this.restaurantTypeMapper = new RestaurantTypeMapper(RestaurantType.class, em);
+        this.cityMapper = new CityMapper(City.class, em);
     }
 
 
@@ -40,18 +40,17 @@ public class RestaurantService implements IRestaurantService {
 
     @Override
     public Restaurant getRestaurantByExactName(String name) {
-        return null;
+        return restaurantMapper.findByExactName(name);
     }
 
     @Override
     public Set<Restaurant> getRestaurantsByCity(String research) {
-        //A faire
-        return Set.of();
+        return restaurantMapper.findByCity(research);
     }
 
     @Override
     public Set<Restaurant> getRestaurantsByType(RestaurantType restaurantType) {
-        return restaurantMapper.findByType(restaurantType);
+        return restaurantMapper.findByType(restaurantType.getLabel());
     }
 
     @Override
@@ -61,8 +60,7 @@ public class RestaurantService implements IRestaurantService {
 
     @Override
     public RestaurantType getRestaurantTypeByLabel(String label) {
-        //A faire
-        return null;
+        return restaurantTypeMapper.findByLabel(label);
     }
 
     @Override
@@ -74,32 +72,69 @@ public class RestaurantService implements IRestaurantService {
 
     @Override
     public Restaurant createRestaurant(Integer id, String name, String description, String website, String street, City city, RestaurantType restaurantType) throws Exception {
-        return null;
-    }
+        Restaurant restaurant = JpaUtils.inTransactionWithResult(em -> {
+            City managedCity = em.contains(city) ? city : em.merge(city);
+            RestaurantType managedType = em.contains(restaurantType) ? restaurantType : em.merge(restaurantType);
 
-    @Override
-    public void updateRestaurant(Restaurant restaurant) throws Exception {
-        //A faire
-    }
-
-    @Override
-    public void deleteRestaurant(Restaurant restaurant) throws Exception {
-
-    }
-
-    @Override
-    public void editRestaurantAddress(Restaurant restaurant, City newCity) {
-
-    }
-
-    @Override
-    public void editRestaurantType(Restaurant restaurant, RestaurantType newType) {
-
+            Restaurant newRestaurant = new Restaurant(null, name, description, website,
+                    street, managedCity, managedType);
+            return newRestaurant;
+        });
+        return restaurant;
     }
 
     @Override
     public City createCity(String ZipCode, String cityName) throws Exception {
-        return null;
+
+        City city = JpaUtils.inTransactionWithResult(em ->{
+            City newCity = new City(ZipCode, cityName);
+              return newCity;
+        });
+        return city;
+    }
+
+    @Override
+    public void updateRestaurant(Restaurant restaurant) throws Exception {
+        restaurantMapper.save(restaurant);
+    }
+
+    @Override
+    public void deleteRestaurant(Restaurant restaurant) throws Exception {
+        restaurantMapper.delete(restaurant);
+    }
+
+    @Override
+    public void editRestaurantAddress(Restaurant restaurant, City newCity) {
+        if (newCity != null && newCity != restaurant.getAddress().getCity()) {
+            JpaUtils.inTransaction(em -> {
+                // Récupérer les entités managées
+                Restaurant managedRestaurant = em.contains(restaurant) ?
+                        restaurant : em.merge(restaurant);
+
+                City managedNewCity = em.contains(newCity) ?
+                        newCity : em.merge(newCity);
+
+                // Récupérer l'ancienne ville managée
+                City oldCity = managedRestaurant.getAddress().getCity();
+
+                // Mettre à jour les relations bidirectionnelles
+                if (oldCity != null) {
+                    oldCity.getRestaurants().remove(managedRestaurant);
+                }
+
+                managedRestaurant.getAddress().setCity(managedNewCity);
+                managedNewCity.getRestaurants().add(managedRestaurant);
+            });
+        }
+    }
+
+    @Override
+    public void editRestaurantType(Restaurant restaurant, RestaurantType newType) {
+        JpaUtils.inTransaction(em -> {
+            Restaurant managedRestaurant = em.contains(restaurant) ? restaurant : em.merge(restaurant);
+            RestaurantType managedType = em.contains(newType) ? newType : em.merge(newType);
+            managedRestaurant.setType(managedType);
+        });
     }
 
 }
