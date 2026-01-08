@@ -5,10 +5,10 @@ import jakarta.persistence.EntityManager;
 
 public class BasicEvaluationMapper extends AbstractMapper<BasicEvaluation>{
 
-    //mis en 'public' pour tests
-    protected BasicEvaluationMapper(Class<BasicEvaluation> type, EntityManager em) {
+    public BasicEvaluationMapper(Class<BasicEvaluation> type, EntityManager em) {
         super(type, em);
     }
+
 
     public Long countLikesForRestaurant(Integer restaurantId){
         return em.createNamedQuery("BasicEvaluation.countLikesForRestaurant",  Long.class)
