@@ -16,7 +16,7 @@ public class EvaluationService implements IEvaluationService {
     private final CompleteEvaluationMapper completeEvaluationMapper;
     private final EvaluationCriteriaMapper evaluationCriteriaMapper;
 
-    private EvaluationService() {
+    public EvaluationService() {
         EntityManager em = JpaUtils.getEntityManager();
         this.basicEvaluationMapper = new BasicEvaluationMapper(BasicEvaluation.class, em);
         this.completeEvaluationMapper = new CompleteEvaluationMapper(CompleteEvaluation.class, em);
@@ -27,12 +27,12 @@ public class EvaluationService implements IEvaluationService {
     // ------------------- READ (pas de transaction) -------------------
     @Override
     public Set<EvaluationCriteria> getAllCriteria() {
-        return Set.of();
+        return evaluationCriteriaMapper.findAll();
     }
 
     @Override
-    public int countLikesForRestaurant(int id, boolean like) {
-        return 0;
+    public Long countLikesForRestaurantId(Integer id, boolean like) {
+        return basicEvaluationMapper.countLikesForRestaurant(id);
     }
 
     // ------------------- WRITE (Transaction) -------------------
@@ -76,7 +76,7 @@ public class EvaluationService implements IEvaluationService {
                 );
                 newCompleteEvaluation.getGrades().add(grade);
             }
-            managedRestaurant.getEvaluations().add(newCompleteEvaluation);
+            managedRestaurant.addEvaluation(newCompleteEvaluation);
             return newCompleteEvaluation;
         });
     }

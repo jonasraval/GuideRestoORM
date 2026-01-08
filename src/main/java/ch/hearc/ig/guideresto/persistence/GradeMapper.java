@@ -7,11 +7,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class GradeMapper extends AbstractMapper<Grade> {
-    protected GradeMapper(Class<Grade> type, EntityManager em) {
+    public GradeMapper(Class<Grade> type, EntityManager em) {
         super(type, em);
     }
 
-    public Set<Grade> findByEvaluationId(int evaluationId) {
+    public Set<Grade> findByEvaluationId(Integer evaluationId) {
         return em.createNamedQuery("Grade.findByEvaluationId", Grade.class)
                 .setParameter("evaluationId", evaluationId)
                 .getResultStream()

@@ -12,5 +12,5 @@ public interface IEvaluationService {
     BasicEvaluation addBasicEvaluation(Restaurant restaurant, Boolean like, String ipAddress) throws Exception;
     CompleteEvaluation evaluateRestaurant(Restaurant restaurant, String username, String comment, Map<EvaluationCriteria, Integer> gradesMap) throws Exception;
     Set<EvaluationCriteria> getAllCriteria();
-    int countLikesForRestaurant(int id, boolean like);
+    Long countLikesForRestaurantId(Integer id, boolean like);
 }

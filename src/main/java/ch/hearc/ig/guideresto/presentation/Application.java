@@ -3,6 +3,8 @@ package ch.hearc.ig.guideresto.presentation;
 import ch.hearc.ig.guideresto.business.*;
 import ch.hearc.ig.guideresto.persistence.BasicEvaluationMapper;
 import ch.hearc.ig.guideresto.persistence.FakeItems;
+import ch.hearc.ig.guideresto.persistence.jpa.JpaUtils;
+import ch.hearc.ig.guideresto.service.EvaluationService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
@@ -28,12 +30,14 @@ public class Application {
         scanner = new Scanner(System.in);
 
         System.out.println("Bienvenue dans GuideResto ! Que souhaitez-vous faire ?");
+
         int choice;
         do {
             printMainMenu();
             choice = readInt();
             proceedMainMenu(choice);
         } while (choice != 0);
+
     }
 
     /**
