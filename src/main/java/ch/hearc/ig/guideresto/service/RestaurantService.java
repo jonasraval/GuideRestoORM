@@ -128,12 +128,21 @@ public class RestaurantService implements IRestaurantService {
 
     @Override
     public void updateRestaurant(Restaurant restaurant) throws Exception {
-        restaurantMapper.save(restaurant);
+        JpaUtils.inTransaction(em -> {
+            Restaurant updated = restaurantMapper.save(restaurant);
+            System.out.println("restaurant mis a jour: " + updated.getName() +
+                    " (ID=" + updated.getId() +
+                    ", CityID=" + updated.getAddress().getCity().getId() +
+                    ", TypeID=" + updated.getType().getId() + ")");
+        });
     }
 
     @Override
     public void deleteRestaurant(Restaurant restaurant) throws Exception {
-        restaurantMapper.delete(restaurant);
+        JpaUtils.inTransaction(em -> {
+            restaurantMapper.delete(restaurant);
+            System.out.println("Suppression restaurant: " + restaurant.getName() + " (ID=" + restaurant.getId() + ")");
+        });
     }
 
     @Override

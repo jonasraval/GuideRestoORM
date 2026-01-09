@@ -49,7 +49,7 @@ public class Restaurant implements IBusinessObject {
     @Column(name = "SITE_WEB")
     private String website;
 
-    @OneToMany(mappedBy = "restaurant") //cascade=CascadeType.ALL, orphanRemoval = true
+    @OneToMany(mappedBy = "restaurant", cascade=CascadeType.ALL, orphanRemoval = true)
     private Set<Evaluation> evaluations;
 
     @Embedded

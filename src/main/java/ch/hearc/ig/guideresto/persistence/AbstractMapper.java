@@ -36,9 +36,8 @@ public abstract class AbstractMapper<T extends IBusinessObject> {
     }
 
     public void delete(T entity) {
-        em.remove(em.contains(entity)
-                ? entity //on remove si elle est déjà gérée
-                : em.merge(entity)); //sinon on la merge avanT de la remove
+        T managed = em.contains(entity) ? entity : em.merge(entity);
+        em.remove(managed);
     }
 
 

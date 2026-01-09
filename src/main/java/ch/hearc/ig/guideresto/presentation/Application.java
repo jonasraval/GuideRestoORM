@@ -36,43 +36,156 @@ public class Application {
         scanner = new Scanner(System.in);
         System.out.println("Bienvenue dans GuideResto ! Que souhaitez-vous faire ?");
         try {
-            // Create city
-            City city = restaurantService.createCity("1000", "Lausanne");
-            System.out.println("City: " + city.getCityName() + " (" + city.getZipCode() + "), id=" + city.getId());
+            System.out.println("=== GUIDE RESTO FULL SERVICE TEST ===\n");
 
-            // 🔍 DEBUG: Check what's actually in the database
-            City checkCity = restaurantService.getAllCities().stream()
-                    .filter(c -> c.getZipCode().equals("1000"))
-                    .findFirst()
-                    .orElse(null);
-            System.out.println("🔍 DEBUG: City in DB has id=" + (checkCity != null ? checkCity.getId() : "NOT FOUND"));
-            System.out.println("🔍 DEBUG: IDs match? " + (checkCity != null && checkCity.getId().equals(city.getId())));
+            // -------------------------------
+            // 1️⃣ Test City Creation
+            // -------------------------------
+            System.out.println("--- Testing City Creation ---");
+            City city1 = restaurantService.createCity("1000", "Lausanne");
+            City city2 = restaurantService.createCity("2000", "Geneva");
 
-            // Get or create restaurant type
-            RestaurantType type = restaurantService.getRestaurantTypeByLabel("Pizzeria");
-            if (type == null) {
-                type = new RestaurantType(null, "Pizzeria", "Italian food");
-                System.out.println("🔍 DEBUG: RestaurantType is NEW (id=null)");
-            } else {
-                System.out.println("🔍 DEBUG: RestaurantType EXISTS (id=" + type.getId() + ")");
-            }
+            System.out.println("Returned City1: " + city1 + ", ID=" + city1.getId());
+            System.out.println("Returned City2: " + city2 + ", ID=" + city2.getId());
 
-            // Create restaurant
-            System.out.println("🔍 DEBUG: About to create restaurant with city.id=" + city.getId());
-            Restaurant restaurant = restaurantService.createRestaurant(
-                    null,
-                    "Test Resto",
-                    "Description Test Resto",
-                    "https://test.com",
-                    "Test Street 1",
-                    city,
-                    type
+            System.out.println("Cities in DB:");
+            restaurantService.getAllCities().forEach(c ->
+                    System.out.println("DB City: " + c.getCityName() + ", Zip=" + c.getZipCode() + ", ID=" + c.getId())
             );
 
-            System.out.println("Restaurant: " + restaurant.getName() +
-                    ", city=" + restaurant.getAddress().getCity().getCityName() +
-                    ", type=" + restaurant.getType().getLabel() +
-                    ", id=" + restaurant.getId());
+            // -------------------------------
+            // 2️⃣ Test RestaurantType
+            // -------------------------------
+            System.out.println("\n--- Testing RestaurantType ---");
+            RestaurantType type1 = restaurantService.getRestaurantTypeByLabel("Pizzeria");
+            if (type1 == null) type1 = new RestaurantType(null, "Pizzeria", "Italian Food");
+
+            RestaurantType type2 = restaurantService.getRestaurantTypeByLabel("Sushi Bar");
+            if (type2 == null) type2 = new RestaurantType(null, "Sushi Bar", "Japanese Food");
+
+            System.out.println("Type1: " + type1 + ", ID=" + type1.getId());
+            System.out.println("Type2: " + type2 + ", ID=" + type2.getId());
+
+            // -------------------------------
+            // 3️⃣ Test Restaurant Creation
+            // -------------------------------
+            System.out.println("\n--- Testing Restaurant Creation ---");
+            Restaurant resto1 = restaurantService.createRestaurant(null, "Lausanne Pizza", "Best pizza in town",
+                    "https://lausannepizza.com", "Pizza Street 1", city1, type1);
+            Restaurant resto2 = restaurantService.createRestaurant(null, "Geneva Sushi", "Fresh sushi daily",
+                    "https://genevasushi.com", "Sushi Street 10", city2, type2);
+
+            System.out.println("Returned Resto1: " + resto1.getName() + ", ID=" + resto1.getId() +
+                    ", CityID=" + resto1.getAddress().getCity().getId() + ", TypeID=" + resto1.getType().getId());
+            System.out.println("Returned Resto2: " + resto2.getName() + ", ID=" + resto2.getId() +
+                    ", CityID=" + resto2.getAddress().getCity().getId() + ", TypeID=" + resto2.getType().getId());
+
+            System.out.println("Restaurants in DB:");
+            restaurantService.getAllRestaurants().forEach(r ->
+                    System.out.println("DB Resto: " + r.getName() +
+                            ", ID=" + r.getId() +
+                            ", CityID=" + r.getAddress().getCity().getId() +
+                            ", TypeID=" + r.getType().getId())
+            );
+
+            // -------------------------------
+            // 4️⃣ Test Editing Restaurant
+            // -------------------------------
+            System.out.println("\n--- Testing Editing Restaurant ---");
+            City city3 = restaurantService.createCity("3000", "Bern");
+            System.out.println("New city to move Resto1: " + city3 + ", ID=" + city3.getId());
+
+            restaurantService.editRestaurantAddress(resto1, city3);
+            System.out.println("Resto1 moved to new city ID=" + resto1.getAddress().getCity().getId());
+
+            RestaurantType type3 = new RestaurantType(null, "Brasserie", "French Cuisine");
+            restaurantService.editRestaurantType(resto2, type3);
+            System.out.println("Resto2 new type ID=" + resto2.getType().getId());
+
+            // -------------------------------
+            // 5️⃣ Test Evaluations
+            // -------------------------------
+            System.out.println("\n--- Testing Evaluations ---");
+            BasicEvaluation eval1 = evaluationService.addBasicEvaluation(resto1, true, "127.0.0.1");
+            BasicEvaluation eval2 = evaluationService.addBasicEvaluation(resto2, false, "127.0.0.2");
+
+            System.out.println("Basic Eval1: ID=" + eval1.getId() + ", RestaurantID=" + eval1.getRestaurant().getId());
+            System.out.println("Basic Eval2: ID=" + eval2.getId() + ", RestaurantID=" + eval2.getRestaurant().getId());
+
+            Map<EvaluationCriteria, Integer> gradesMap = new HashMap<>();
+            for (EvaluationCriteria c : evaluationService.getAllCriteria()) {
+                gradesMap.put(c, 5); // assign 5 to all criteria for test
+            }
+
+            CompleteEvaluation completeEval = evaluationService.evaluateRestaurant(resto1, "Alice", "Great!", gradesMap);
+            System.out.println("Complete Eval: ID=" + completeEval.getId() + ", RestaurantID=" + completeEval.getRestaurant().getId());
+
+            // -------------------------------
+            // 6️⃣ Debugging Sequences & IDs
+            // -------------------------------
+            System.out.println("\n--- Debugging Sequences ---");
+            System.out.println("SEQ_VILLES.NEXTVAL = " +
+                    JpaUtils.inTransactionWithResult(em ->
+                            ((Number) em.createNativeQuery("SELECT SEQ_VILLES.NEXTVAL FROM DUAL").getSingleResult()).intValue()
+                    ));
+            System.out.println("SEQ_RESTAURANTS.NEXTVAL = " +
+                    JpaUtils.inTransactionWithResult(em ->
+                            ((Number) em.createNativeQuery("SELECT SEQ_RESTAURANTS.NEXTVAL FROM DUAL").getSingleResult()).intValue()
+                    ));
+
+            // -------------------------------
+            // 8️⃣ Test Deleting Restaurants & Cascade
+            // -------------------------------
+            System.out.println("\n--- Testing Deleting Restaurants ---");
+
+            // Before deletion
+            System.out.println("Restaurants BEFORE deletion:");
+            restaurantService.getAllRestaurants().forEach(r ->
+                    System.out.println("Restaurant: " + r.getName() +
+                            ", ID=" + r.getId() +
+                            ", CityID=" + r.getAddress().getCity().getId() +
+                            ", TypeID=" + r.getType().getId() +
+                            ", EvalCount=" + r.getEvaluations().size())
+            );
+
+            // Delete resto1
+            System.out.println("\nDeleting restaurant: " + resto1.getName() + " (ID=" + resto1.getId() + ")");
+            restaurantService.deleteRestaurant(resto1);
+
+            // After deletion
+            System.out.println("\nRestaurants AFTER deletion:");
+            restaurantService.getAllRestaurants().forEach(r ->
+                    System.out.println("Restaurant: " + r.getName() +
+                            ", ID=" + r.getId() +
+                            ", CityID=" + r.getAddress().getCity().getId() +
+                            ", TypeID=" + r.getType().getId() +
+                            ", EvalCount=" + r.getEvaluations().size())
+            );
+
+            // Explain what should have been deleted
+            System.out.println("\n🔍 Expected cascading behavior:");
+            System.out.println(" - " + resto1.getName() + " should be removed from RESTAURANTS table.");
+            System.out.println(" - Its associated BasicEvaluation and CompleteEvaluation objects should also be deleted if cascading is configured correctly.");
+            System.out.println(" - The City and RestaurantType should NOT be deleted.");
+
+            // -------------------------------
+            // 9 Final DB States
+            // -------------------------------
+            System.out.println("\n--- Final Database States ---");
+            System.out.println("Cities:");
+            restaurantService.getAllCities().forEach(c ->
+                    System.out.println("City: " + c.getCityName() + ", DB ID=" + c.getId())
+            );
+
+            System.out.println("Restaurants:");
+            restaurantService.getAllRestaurants().forEach(r ->
+                    System.out.println("Restaurant: " + r.getName() +
+                            ", DB ID=" + r.getId() +
+                            ", CityID=" + r.getAddress().getCity().getId() +
+                            ", TypeID=" + r.getType().getId())
+            );
+
+            System.out.println("Done testing all service methods.");
 
         } catch (Exception e) {
             System.err.println("❌ ERROR: " + e.getMessage());
