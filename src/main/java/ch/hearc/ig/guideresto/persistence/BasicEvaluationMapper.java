@@ -2,6 +2,7 @@ package ch.hearc.ig.guideresto.persistence;
 
 import ch.hearc.ig.guideresto.business.BasicEvaluation;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 
 public class BasicEvaluationMapper extends AbstractMapper<BasicEvaluation>{
 
@@ -11,10 +12,13 @@ public class BasicEvaluationMapper extends AbstractMapper<BasicEvaluation>{
 
 
     public Long countLikesForRestaurant(Integer restaurantId){
-        return em.createNamedQuery("BasicEvaluation.countLikesForRestaurant",  Long.class)
-                .setParameter("restaurantId", restaurantId)
-                .setParameter("like", true)
-                .getSingleResult();
-
+        try {
+            return em.createNamedQuery("BasicEvaluation.countLikesForRestaurant",  Long.class)
+                    .setParameter("restaurantId", restaurantId)
+                    .setParameter("like", true)
+                    .getSingleResult();
+        } catch (NoResultException ne) {
+            return null;
+        }
     }
 }

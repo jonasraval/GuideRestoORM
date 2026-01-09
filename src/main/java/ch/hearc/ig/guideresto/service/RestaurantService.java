@@ -72,6 +72,15 @@ public class RestaurantService implements IRestaurantService {
 
     @Override
     public Restaurant createRestaurant(Integer id, String name, String description, String website, String street, City city, RestaurantType restaurantType) throws Exception {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Le nom du restaurant ne peut pas être vide");
+        }
+        if (city == null) {
+            throw new IllegalArgumentException("La ville ne peut pas être nulle");
+        }
+        if (restaurantType == null) {
+            throw new IllegalArgumentException("Le type de restaurant ne peut pas être null");
+        }
         return JpaUtils.inTransactionWithResult(em -> {
                     City managedCity = em.merge(city);  // This will handle both new and existing cities
 
@@ -85,18 +94,25 @@ public class RestaurantService implements IRestaurantService {
     }
 
     @Override
-    public City createCity(String ZipCode, String cityName) throws Exception {
+    public City createCity(String zipCode, String cityName) throws Exception {
+
+        if (zipCode == null || zipCode.trim().isEmpty()) {
+            throw new IllegalArgumentException("Le code postal ne peut pas être vide");
+        }
+        if (cityName == null || cityName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Le nom de la ville ne peut pas être vide");
+        }
 
         //voir s il y a pas deja une ville qui existe
         for (City city : getAllCities()) {
-            if (city.getZipCode().equals(ZipCode)) {
+            if (city.getZipCode().equals(zipCode)) {
                 return city; // reuse existing city
             }
         }
 
         //ville existe pas encore - on la crée
         return JpaUtils.inTransactionWithResult(em -> {
-            City newCity = new City(ZipCode, cityName);
+            City newCity = new City(zipCode, cityName);
             em.persist(newCity);
 
             return newCity;
@@ -105,6 +121,9 @@ public class RestaurantService implements IRestaurantService {
 
     @Override
     public void updateRestaurant(Restaurant restaurant) throws Exception {
+        if (restaurant == null || restaurant.getId() == null) {
+            throw new IllegalArgumentException("Le restaurant doit avoir un ID pour être mis à jour");
+        }
         JpaUtils.inTransaction(em -> {
             restaurantMapper.save(restaurant);
 
@@ -113,13 +132,17 @@ public class RestaurantService implements IRestaurantService {
 
     @Override
     public void deleteRestaurant(Restaurant restaurant) throws Exception {
+        if (restaurant == null || restaurant.getId() == null) {
+            throw new IllegalArgumentException("Le restaurant doit avoir un ID pour être supprimé");
+        }
+
         JpaUtils.inTransaction(em -> {
             restaurantMapper.delete(restaurant);
         });
     }
 
     @Override
-    public void editRestaurantAddress(Restaurant restaurant, City newCity) {
+    public void editRestaurantAddress(Restaurant restaurant, City newCity) throws Exception {
         if (newCity != null && newCity != restaurant.getAddress().getCity()) {
             JpaUtils.inTransaction(em -> {
                 // Récupérer les entités managées
@@ -143,7 +166,7 @@ public class RestaurantService implements IRestaurantService {
     }
 
     @Override
-    public void editRestaurantType(Restaurant restaurant, RestaurantType newType) {
+    public void editRestaurantType(Restaurant restaurant, RestaurantType newType) throws Exception {
         JpaUtils.inTransaction(em -> {
             Restaurant managedRestaurant = em.contains(restaurant) ? restaurant : em.merge(restaurant);
             RestaurantType managedType = newType.getId() == null ? restaurantTypeMapper.save(newType) : em.merge(newType);

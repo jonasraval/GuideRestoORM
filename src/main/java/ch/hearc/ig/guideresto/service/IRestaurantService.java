@@ -15,8 +15,8 @@ public interface IRestaurantService {
     Restaurant createRestaurant(Integer id, String name, String description, String website, String street, City city, RestaurantType restaurantType) throws Exception;
     void updateRestaurant(Restaurant restaurant) throws Exception;
     void deleteRestaurant(Restaurant restaurant) throws Exception;
-    void editRestaurantAddress(Restaurant restaurant, City newCity);
-    void editRestaurantType(Restaurant restaurant, RestaurantType newType);
+    void editRestaurantAddress(Restaurant restaurant, City newCity) throws Exception;
+    void editRestaurantType(Restaurant restaurant, RestaurantType newType) throws Exception;
     Set<City> getAllCities();
     City createCity(String ZipCode, String cityName) throws Exception;
     RestaurantType getRestaurantTypeByLabel(String label);

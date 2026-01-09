@@ -35,7 +35,8 @@ public class JpaUtils {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
-            throw ex;
+            System.err.println("Erreur lors de la transaction : "+ ex.getMessage());
+            throw new RuntimeException("Erreur de persistance : ", ex);
         }
     }
 
@@ -52,7 +53,8 @@ public class JpaUtils {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
-            throw ex;
+            System.err.println("Erreur lors de la transaction : "+ ex.getMessage());
+            throw new RuntimeException("Erreur de persistance : ", ex);
         }
     }
 

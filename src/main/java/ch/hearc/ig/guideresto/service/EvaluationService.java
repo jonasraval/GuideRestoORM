@@ -38,6 +38,15 @@ public class EvaluationService implements IEvaluationService {
     // ------------------- WRITE (Transaction) -------------------
     @Override
     public BasicEvaluation addBasicEvaluation(Restaurant restaurant, Boolean like, String ipAddress) throws Exception {
+        if (restaurant == null) {
+            throw new IllegalArgumentException("Le restaurant ne peut pas être null");
+        }
+        if (like == null) {
+            throw new IllegalArgumentException("L'appreciation ne peut pas être null");
+        }
+        if (ipAddress == null) {
+            throw new IllegalArgumentException("L'adresse IP ne peut pas être null");
+        }
         return JpaUtils.inTransactionWithResult(em -> {
             Restaurant managedRestaurant = em.contains(restaurant) ? restaurant : em.merge(restaurant);
 
@@ -57,6 +66,18 @@ public class EvaluationService implements IEvaluationService {
 
     @Override
     public CompleteEvaluation evaluateRestaurant(Restaurant restaurant, String username, String comment, Map<EvaluationCriteria, Integer> gradesMap) throws Exception {
+        if (restaurant == null) {
+            throw new IllegalArgumentException("Le restaurant ne peut pas être null");
+        }
+        if (username == null || username.trim().isEmpty()){
+            throw new IllegalArgumentException("Le nom d'utilisateur ne peut pas être null");
+        }
+        if (comment == null || comment.trim().isEmpty()){
+            throw new IllegalArgumentException("Le commentaire ne peut pas être null");
+        }
+        if (gradesMap == null || gradesMap.isEmpty()){
+            throw new IllegalArgumentException("Il faut au moins une note");
+        }
         return JpaUtils.inTransactionWithResult(em -> {
             Restaurant managedRestaurant = em.contains(restaurant) ? restaurant : em.merge(restaurant);
 
@@ -73,10 +94,17 @@ public class EvaluationService implements IEvaluationService {
             // Attribution d'une note à chaque critère
             // Avec var le compilateur arrive à déduire automatiquement grâce à l'entrySet le type (inférence)
             for (var entry : gradesMap.entrySet()) {
+                Integer gradeValue = entry.getValue();
+                if (gradeValue == null || gradeValue < 1 || gradeValue > 5) {
+                    throw new IllegalArgumentException("La note doit être entre 1 et 5");
+                }
+
+                EvaluationCriteria managedCriteria = em.merge(entry.getKey());
+
                 Grade grade = new Grade(
                         entry.getValue(),
                         newCompleteEvaluation,
-                        entry.getKey()
+                        managedCriteria
                 );
                 em.persist(grade);
                 newCompleteEvaluation.getGrades().add(grade);
