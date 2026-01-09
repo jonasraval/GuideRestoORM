@@ -49,7 +49,7 @@ public class EvaluationService implements IEvaluationService {
                     ipAddress
             );
             em.persist(newBasicEvaluation);
-            //newBasicEvaluation = basicEvaluationMapper.save(newBasicEvaluation);
+
             managedRestaurant.getEvaluations().add(newBasicEvaluation);
             return newBasicEvaluation;
         });
@@ -70,7 +70,6 @@ public class EvaluationService implements IEvaluationService {
 
             em.persist(newCompleteEvaluation);
 
-            //newCompleteEvaluation = completeEvaluationMapper.save(newCompleteEvaluation); //persister avant de cascader les notes
             // Attribution d'une note à chaque critère
             // Avec var le compilateur arrive à déduire automatiquement grâce à l'entrySet le type (inférence)
             for (var entry : gradesMap.entrySet()) {

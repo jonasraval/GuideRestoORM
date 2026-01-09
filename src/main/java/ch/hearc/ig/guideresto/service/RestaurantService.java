@@ -80,30 +80,17 @@ public class RestaurantService implements IRestaurantService {
                     Restaurant newRestaurant = new Restaurant(null, name, description, website,
                             street, managedCity, managedType);
                     em.persist(newRestaurant);
-                    System.out.println("createRestaurant : returning restaurant with ID : " + newRestaurant.getId());
                     return newRestaurant;
                 });
-        /*
-        Restaurant restaurant = JpaUtils.inTransactionWithResult(em -> {
-            City managedCity = em.contains(city) ? city : em.merge(city);
-            RestaurantType managedType = em.contains(restaurantType) ? restaurantType : em.merge(restaurantType);
-
-            Restaurant newRestaurant = new Restaurant(null, name, description, website,
-                    street, managedCity, managedType);
-            return newRestaurant;
-        });
-        return restaurantMapper.save(restaurant);
-         */
-
     }
 
     @Override
     public City createCity(String ZipCode, String cityName) throws Exception {
 
         //voir s il y a pas deja une ville qui existe
-        for (City c : getAllCities()) {
-            if (c.getZipCode().equals(ZipCode)) {
-                return c; // reuse existing city
+        for (City city : getAllCities()) {
+            if (city.getZipCode().equals(ZipCode)) {
+                return city; // reuse existing city
             }
         }
 
@@ -112,28 +99,15 @@ public class RestaurantService implements IRestaurantService {
             City newCity = new City(ZipCode, cityName);
             em.persist(newCity);
 
-            System.out.println("createCity : returning city with ID : " + newCity.getId());
             return newCity;
         });
-
-        /*
-        City city = JpaUtils.inTransactionWithResult(em ->{
-            City newCity = new City(ZipCode, cityName);
-              return newCity;
-        });
-        return cityMapper.save(city); //ajouté le save
-
-         */
     }
 
     @Override
     public void updateRestaurant(Restaurant restaurant) throws Exception {
         JpaUtils.inTransaction(em -> {
-            Restaurant updated = restaurantMapper.save(restaurant);
-            System.out.println("restaurant mis a jour: " + updated.getName() +
-                    " (ID=" + updated.getId() +
-                    ", CityID=" + updated.getAddress().getCity().getId() +
-                    ", TypeID=" + updated.getType().getId() + ")");
+            restaurantMapper.save(restaurant);
+
         });
     }
 
@@ -141,7 +115,6 @@ public class RestaurantService implements IRestaurantService {
     public void deleteRestaurant(Restaurant restaurant) throws Exception {
         JpaUtils.inTransaction(em -> {
             restaurantMapper.delete(restaurant);
-            System.out.println("Suppression restaurant: " + restaurant.getName() + " (ID=" + restaurant.getId() + ")");
         });
     }
 
@@ -152,10 +125,6 @@ public class RestaurantService implements IRestaurantService {
                 // Récupérer les entités managées
                 Restaurant managedRestaurant = em.contains(restaurant) ?
                         restaurant : em.merge(restaurant);
-
-                /* Jonas :
-                City managedNewCity = em.contains(newCity) ?
-                        newCity : em.merge(newCity);*/
 
                 City managedNewCity = newCity.getId() == null ? cityMapper.save(newCity) : em.merge(newCity);
 
