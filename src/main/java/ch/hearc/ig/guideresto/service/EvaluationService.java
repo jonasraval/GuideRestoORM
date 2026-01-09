@@ -41,15 +41,17 @@ public class EvaluationService implements IEvaluationService {
         return JpaUtils.inTransactionWithResult(em -> {
             Restaurant managedRestaurant = em.contains(restaurant) ? restaurant : em.merge(restaurant);
 
-            BasicEvaluation newBaiscEvaluation = new BasicEvaluation(
+            BasicEvaluation newBasicEvaluation = new BasicEvaluation(
                     null,
                     new Date(),
                     managedRestaurant,
                     like,
                     ipAddress
             );
-            managedRestaurant.getEvaluations().add(newBaiscEvaluation);
-            return newBaiscEvaluation;
+            em.persist(newBasicEvaluation);
+            //newBasicEvaluation = basicEvaluationMapper.save(newBasicEvaluation);
+            managedRestaurant.getEvaluations().add(newBasicEvaluation);
+            return newBasicEvaluation;
         });
     }
 
@@ -66,6 +68,9 @@ public class EvaluationService implements IEvaluationService {
                     username
             );
 
+            em.persist(newCompleteEvaluation);
+
+            //newCompleteEvaluation = completeEvaluationMapper.save(newCompleteEvaluation); //persister avant de cascader les notes
             // Attribution d'une note à chaque critère
             // Avec var le compilateur arrive à déduire automatiquement grâce à l'entrySet le type (inférence)
             for (var entry : gradesMap.entrySet()) {
@@ -74,6 +79,7 @@ public class EvaluationService implements IEvaluationService {
                         newCompleteEvaluation,
                         entry.getKey()
                 );
+                em.persist(grade);
                 newCompleteEvaluation.getGrades().add(grade);
             }
             managedRestaurant.addEvaluation(newCompleteEvaluation);

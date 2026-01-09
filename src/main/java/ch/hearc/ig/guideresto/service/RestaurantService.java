@@ -18,7 +18,7 @@ public class RestaurantService implements IRestaurantService {
     private final RestaurantTypeMapper restaurantTypeMapper;
     private final CityMapper cityMapper;
 
-    private RestaurantService() {
+    public RestaurantService() {
         EntityManager em = JpaUtils.getEntityManager();
         this.restaurantMapper = new RestaurantMapper(Restaurant.class, em);
         this.restaurantTypeMapper = new RestaurantTypeMapper(RestaurantType.class, em);
@@ -72,6 +72,18 @@ public class RestaurantService implements IRestaurantService {
 
     @Override
     public Restaurant createRestaurant(Integer id, String name, String description, String website, String street, City city, RestaurantType restaurantType) throws Exception {
+        return JpaUtils.inTransactionWithResult(em -> {
+                    City managedCity = em.merge(city);  // This will handle both new and existing cities
+
+                    RestaurantType managedType = em.merge(restaurantType);
+
+                    Restaurant newRestaurant = new Restaurant(null, name, description, website,
+                            street, managedCity, managedType);
+                    em.persist(newRestaurant);
+                    System.out.println("createRestaurant : returning restaurant with ID : " + newRestaurant.getId());
+                    return newRestaurant;
+                });
+        /*
         Restaurant restaurant = JpaUtils.inTransactionWithResult(em -> {
             City managedCity = em.contains(city) ? city : em.merge(city);
             RestaurantType managedType = em.contains(restaurantType) ? restaurantType : em.merge(restaurantType);
@@ -80,17 +92,38 @@ public class RestaurantService implements IRestaurantService {
                     street, managedCity, managedType);
             return newRestaurant;
         });
-        return restaurant;
+        return restaurantMapper.save(restaurant);
+         */
+
     }
 
     @Override
     public City createCity(String ZipCode, String cityName) throws Exception {
 
+        //voir s il y a pas deja une ville qui existe
+        for (City c : getAllCities()) {
+            if (c.getZipCode().equals(ZipCode)) {
+                return c; // reuse existing city
+            }
+        }
+
+        //ville existe pas encore - on la crée
+        return JpaUtils.inTransactionWithResult(em -> {
+            City newCity = new City(ZipCode, cityName);
+            em.persist(newCity);
+
+            System.out.println("createCity : returning city with ID : " + newCity.getId());
+            return newCity;
+        });
+
+        /*
         City city = JpaUtils.inTransactionWithResult(em ->{
             City newCity = new City(ZipCode, cityName);
               return newCity;
         });
-        return city;
+        return cityMapper.save(city); //ajouté le save
+
+         */
     }
 
     @Override
@@ -111,8 +144,11 @@ public class RestaurantService implements IRestaurantService {
                 Restaurant managedRestaurant = em.contains(restaurant) ?
                         restaurant : em.merge(restaurant);
 
+                /* Jonas :
                 City managedNewCity = em.contains(newCity) ?
-                        newCity : em.merge(newCity);
+                        newCity : em.merge(newCity);*/
+
+                City managedNewCity = newCity.getId() == null ? cityMapper.save(newCity) : em.merge(newCity);
 
                 // Récupérer l'ancienne ville managée
                 City oldCity = managedRestaurant.getAddress().getCity();
@@ -132,7 +168,7 @@ public class RestaurantService implements IRestaurantService {
     public void editRestaurantType(Restaurant restaurant, RestaurantType newType) {
         JpaUtils.inTransaction(em -> {
             Restaurant managedRestaurant = em.contains(restaurant) ? restaurant : em.merge(restaurant);
-            RestaurantType managedType = em.contains(newType) ? newType : em.merge(newType);
+            RestaurantType managedType = newType.getId() == null ? restaurantTypeMapper.save(newType) : em.merge(newType);
             managedRestaurant.setType(managedType);
         });
     }

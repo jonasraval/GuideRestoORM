@@ -49,7 +49,7 @@ public class Restaurant implements IBusinessObject {
     @Column(name = "SITE_WEB")
     private String website;
 
-    @OneToMany(mappedBy = "restaurant") //PAS OUBLIER DE GERER LA SUPPRESSION EN CASCADE
+    @OneToMany(mappedBy = "restaurant") //cascade=CascadeType.ALL, orphanRemoval = true
     private Set<Evaluation> evaluations;
 
     @Embedded
@@ -81,6 +81,10 @@ public class Restaurant implements IBusinessObject {
         this.evaluations = new HashSet();
         this.address = address;
         this.type = type;
+    }
+
+    public void addEvaluation(Evaluation evaluation) {
+        this.evaluations.add(evaluation);
     }
 
     public Integer getId() {

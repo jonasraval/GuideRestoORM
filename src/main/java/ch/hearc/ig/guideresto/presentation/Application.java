@@ -26,15 +26,60 @@ public class Application {
 
     private static Scanner scanner;
     private static final Logger logger = LogManager.getLogger(Application.class);
+    private static final RestaurantService restaurantService = new RestaurantService();
+    private static final EvaluationService evaluationService = new EvaluationService();
 
+    public Application() {
+    }
 
     public static void main(String[] args) {
-
-
         scanner = new Scanner(System.in);
-
         System.out.println("Bienvenue dans GuideResto ! Que souhaitez-vous faire ?");
+        try {
+            // Create city
+            City city = restaurantService.createCity("1000", "Lausanne");
+            System.out.println("City: " + city.getCityName() + " (" + city.getZipCode() + "), id=" + city.getId());
 
+            // 🔍 DEBUG: Check what's actually in the database
+            City checkCity = restaurantService.getAllCities().stream()
+                    .filter(c -> c.getZipCode().equals("1000"))
+                    .findFirst()
+                    .orElse(null);
+            System.out.println("🔍 DEBUG: City in DB has id=" + (checkCity != null ? checkCity.getId() : "NOT FOUND"));
+            System.out.println("🔍 DEBUG: IDs match? " + (checkCity != null && checkCity.getId().equals(city.getId())));
+
+            // Get or create restaurant type
+            RestaurantType type = restaurantService.getRestaurantTypeByLabel("Pizzeria");
+            if (type == null) {
+                type = new RestaurantType(null, "Pizzeria", "Italian food");
+                System.out.println("🔍 DEBUG: RestaurantType is NEW (id=null)");
+            } else {
+                System.out.println("🔍 DEBUG: RestaurantType EXISTS (id=" + type.getId() + ")");
+            }
+
+            // Create restaurant
+            System.out.println("🔍 DEBUG: About to create restaurant with city.id=" + city.getId());
+            Restaurant restaurant = restaurantService.createRestaurant(
+                    null,
+                    "Test Resto",
+                    "Description Test Resto",
+                    "https://test.com",
+                    "Test Street 1",
+                    city,
+                    type
+            );
+
+            System.out.println("Restaurant: " + restaurant.getName() +
+                    ", city=" + restaurant.getAddress().getCity().getCityName() +
+                    ", type=" + restaurant.getType().getLabel() +
+                    ", id=" + restaurant.getId());
+
+        } catch (Exception e) {
+            System.err.println("❌ ERROR: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        /*
         int choice;
         do {
             printMainMenu();
@@ -42,6 +87,7 @@ public class Application {
             proceedMainMenu(choice);
         } while (choice != 0);
 
+         */
     }
 
     /**

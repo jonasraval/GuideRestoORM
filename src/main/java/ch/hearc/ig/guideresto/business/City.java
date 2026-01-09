@@ -23,7 +23,8 @@ public class City implements IBusinessObject {
     @SequenceGenerator(
             name = "SEQ_VILLES",
             sequenceName = "SEQ_VILLES",
-            allocationSize = 1
+            allocationSize = 1,
+            initialValue = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
