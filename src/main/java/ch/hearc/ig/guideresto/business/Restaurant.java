@@ -18,7 +18,7 @@ import java.util.Set;
         @NamedQuery(name = "Restaurant.findById",
                 query = "SELECT r FROM Restaurant r WHERE r.id=:id"),
         @NamedQuery(name = "Restaurant.findByCity",
-                query = "SELECT r FROM Restaurant r WHERE LOWER(r.address.city.cityName) = LOWER(:cityName)"),
+                query = "SELECT r FROM Restaurant r WHERE LOWER(r.address.city.cityName) LIKE LOWER(CONCAT('%', :cityName, '%'))"),
         @NamedQuery(name = "Restaurant.findByType",
                 query = "SELECT r FROM Restaurant r WHERE LOWER(r.type.label) = LOWER(:label)"),
         @NamedQuery(name = "Restaurant.findByName",
