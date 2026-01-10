@@ -22,7 +22,7 @@ import java.util.Set;
         @NamedQuery(name = "Restaurant.findByType",
                 query = "SELECT r FROM Restaurant r WHERE LOWER(r.type.label) = LOWER(:label)"),
         @NamedQuery(name = "Restaurant.findByName",
-                query = "SELECT r FROM Restaurant r WHERE LOWER(r.name) LIKE LOWER(:name)"),
+                query = "SELECT r FROM Restaurant r WHERE LOWER(r.name) LIKE LOWER(CONCAT('%', :name, '%'))"),
         @NamedQuery(name = "Restaurant.findByExactName",
                 query = "SELECT r FROM Restaurant r WHERE LOWER(r.name) = LOWER(:name)")
 })
