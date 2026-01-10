@@ -58,4 +58,16 @@ public class JpaUtils {
         }
     }
 
+    public static void closeEntityManager() {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+    }
+
+    public static void closeEntityManagerFactory() {
+        if (emf != null && emf.isOpen()) {
+            emf.close();
+        }
+    }
+
 }
