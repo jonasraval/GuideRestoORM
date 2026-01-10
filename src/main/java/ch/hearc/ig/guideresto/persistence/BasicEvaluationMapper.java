@@ -11,11 +11,11 @@ public class BasicEvaluationMapper extends AbstractMapper<BasicEvaluation>{
     }
 
 
-    public Long countLikesForRestaurant(Integer restaurantId){
+    public Long countLikesForRestaurant(Integer restaurantId, boolean like){
         try {
             return em.createNamedQuery("BasicEvaluation.countLikesForRestaurant",  Long.class)
                     .setParameter("restaurantId", restaurantId)
-                    .setParameter("like", true)
+                    .setParameter("like", like)
                     .getSingleResult();
         } catch (NoResultException ne) {
             return null;

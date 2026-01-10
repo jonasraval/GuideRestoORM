@@ -32,7 +32,7 @@ public class EvaluationService implements IEvaluationService {
 
     @Override
     public Long countLikesForRestaurantId(Integer id, boolean like) {
-        return basicEvaluationMapper.countLikesForRestaurant(id);
+        return basicEvaluationMapper.countLikesForRestaurant(id, like);
     }
 
     // ------------------- WRITE (Transaction) -------------------
