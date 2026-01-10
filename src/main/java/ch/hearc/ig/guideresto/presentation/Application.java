@@ -132,7 +132,12 @@ public class Application {
             return null;  // Retour en arrière
         }
 
-        return restaurantService.getRestaurantByExactName(choice);
+        Restaurant restaurant = restaurantService.getRestaurantByExactName(choice);
+
+        if (restaurant == null) {
+            System.out.println("Le restaurant : "+ choice +" introuvable");
+        }
+        return restaurant;
     }
 
     /**
@@ -156,6 +161,11 @@ public class Application {
         System.out.println("Veuillez entrer une partie du nom recherché : ");
         String research = readString();
 
+        while (research == null || research.trim().isEmpty()) {
+            System.out.println("Veuillez saisir au moins un caractère");
+            research = readString();
+        }
+
         Set<Restaurant> filteredList = restaurantService.getRestaurantsByName(research);
 
         Restaurant restaurant = pickRestaurant(filteredList);
@@ -171,6 +181,11 @@ public class Application {
     private static void searchRestaurantsByCity() {
         System.out.println("Veuillez entrer une partie du nom de la ville désirée : ");
         String research = readString();
+        while (research == null || research.trim().isEmpty()){
+            System.out.println("Veuillez saisir au moins un caractère");
+            research = readString();
+        }
+
         Set<Restaurant> filteredList = restaurantService.getRestaurantsByCity(research);
         Restaurant restaurant = pickRestaurant(filteredList);
 
@@ -186,30 +201,56 @@ public class Application {
      * @return La ville sélectionnée, ou null si aucune ville n'a été choisie.
      */
     private static City pickCity(Set<City> cities) {
+        if (cities == null || cities.isEmpty()){
+            System.out.println("Aucune ville disponible");
+            return null;
+        }
+
         System.out.println("Voici la liste des villes possibles, veuillez entrer le NPA de la ville désirée : ");
 
         for (City currentCity : cities) {
             System.out.println(currentCity.getZipCode() + " " + currentCity.getCityName());
         }
+
         System.out.println("Entrez \"NEW\" pour créer une nouvelle ville");
+
         String choice = readString();
+
+        if (choice == null || choice.trim().isEmpty()) {
+            System.out.println("Aucune ville sélectionné");
+            return null;
+        }
 
         if (choice.equals("NEW")) {
             System.out.println("Veuillez entrer le NPA de la nouvelle ville : ");
             String zipCode = readString();
+            while (zipCode == null || zipCode.trim().isEmpty()) {
+                System.out.println("Le NPA ne peut pas être vide");
+                zipCode = readString();
+            }
+
             System.out.println("Veuillez entrer le nom de la nouvelle ville : ");
             String cityName = readString();
+            while (cityName == null || cityName.trim().isEmpty()){
+                System.out.println("Le nom de la ville ne peut pas être vide");
+                cityName = readString();
+            }
 
             try {
                 City city = restaurantService.createCity(zipCode, cityName);
                 System.out.println("Nouvelle ville ajoutée avec succès !");
                 return city;
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                System.out.println(" Erreur : "+e.getMessage());
+                return null;
             }
         }
 
-        return searchCityByZipCode(cities, choice);
+        City city = searchCityByZipCode(cities, choice);
+        if (city == null) {
+            System.out.println("Ville avec le NPA : "+ choice+" introuvable");
+        }
+        return city;
     }
 
     /**
@@ -224,7 +265,17 @@ public class Application {
             System.out.println("\"" + currentType.getLabel() + "\" : " + currentType.getDescription());
         }
         String choice = readString();
-        return restaurantService.getRestaurantTypeByLabel(choice);
+        if (choice == null || choice.trim().isEmpty()) {
+            return null;
+        }
+
+        RestaurantType type = restaurantService.getRestaurantTypeByLabel(choice);
+
+        if (type == null) {
+            System.out.println("Type "+choice+" introuvable");
+        }
+
+        return type;
     }
 
     /**
@@ -232,56 +283,91 @@ public class Application {
      * Si l'utilisateur sélectionne un restaurant, ce dernier lui sera affiché.
      */
     private static void searchRestaurantsByType() {
-        RestaurantType chosenType = pickRestaurantType(restaurantService.getAllRestaurantsTypes());
-        Set<Restaurant> filteredList = restaurantService.getRestaurantsByType(chosenType);
-        if (chosenType == null) {
-            System.out.println("Aucun type sélectionné. Retour au menu principal.");
+
+        while (true) {
+            RestaurantType chosenType =
+                    pickRestaurantType(restaurantService.getAllRestaurantsTypes());
+
+            if (chosenType == null) {
+                System.out.println("Type invalide (libellé inconnu). Réessayez.");
+                continue;
+            }
+
+            Set<Restaurant> filteredList = restaurantService.getRestaurantsByType(chosenType);
+
+            if (filteredList == null || filteredList.isEmpty()) {
+                System.out.println("Aucun restaurant trouvé pour ce type. Réessayez.");
+                continue;
+            }
+
+            Restaurant restaurant = pickRestaurant(filteredList);
+            if (restaurant != null) showRestaurant(restaurant);
             return;
-        }
-
-        if (filteredList.isEmpty() || filteredList == null) {
-            System.out.println("Aucun restaurant trouvé pour le type choisi.");
-            return;
-        }
-
-        Restaurant restaurant = pickRestaurant(filteredList);
-
-        if (restaurant != null) {
-            showRestaurant(restaurant);
         }
     }
+
 
     /**
      * Le programme demande les informations nécessaires à l'utilisateur puis crée un nouveau restaurant dans le système.
      */
-    private static void addNewRestaurant() throws SQLException {
+    private static void addNewRestaurant() {
         //Affichage
         System.out.println("Vous allez ajouter un nouveau restaurant !");
         System.out.println("Quel est son nom ?");
         String name = readString();
+        while (name == null || name.trim().isEmpty()){
+            System.out.println("Le nom ne peut pas être vide");
+            name = readString();
+        }
+
         System.out.println("Veuillez entrer une courte description : ");
         String description = readString();
+        while (description == null || description.trim().isEmpty()){
+            System.out.println("La description ne peut pas être vide");
+            description = readString();
+        }
+
         System.out.println("Veuillez entrer l'adresse de son site internet : ");
         String website = readString();
+        while (website == null || website.trim().isEmpty()){
+            System.out.println("Le site web ne peut pas être vide");
+            website = readString();
+        }
+
         System.out.println("Rue : ");
         String street = readString();
+        while (street == null || street.trim().isEmpty()){
+            System.out.println("La rue ne peut pas être vide");
+            street = readString();
+        }
+
+
         City city = null;
         do
         {
             city = pickCity(restaurantService.getAllCities());
-
+            if (city == null) {
+                System.out.println("Vous devez sélectionner une ville");
+            }
         } while (city == null);
         RestaurantType restaurantType = null;
         do
         {
             restaurantType = pickRestaurantType(restaurantService.getAllRestaurantsTypes());
+            if (restaurantType == null) {
+                System.out.println("Vous devez sélectionner un type de restaurant");
+            }
         } while (restaurantType == null);
-
         try {
             Restaurant restaurant = restaurantService.createRestaurant(null, name, description, website, street, city, restaurantType);
+            System.out.println("Restaurant créé avec succès");
             showRestaurant(restaurant);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Erreur de validation : " + e.getMessage());
+        } catch (RuntimeException e){
+            logger.error("Echec création restaurant : "+ e);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("Erreur inattendue : "+ e.getMessage());
         }
     }
 
@@ -434,22 +520,46 @@ public class Application {
             System.out.println("Merci d'évaluer ce restaurant !");
             System.out.println("Quel est votre nom d'utilisateur ? ");
             String username = readString();
+            while (username == null || username.trim().isEmpty()){
+                System.out.println("Le nom d'utilisateur ne peut pas être vide. Veuillez recommencer");
+                username = readString();
+            }
+
             System.out.println("Quel commentaire aimeriez-vous publier ?");
             String comment = readString();
+            while (comment == null || comment.trim().isEmpty()){
+                System.out.println("Le commentaire ne peut pas être vide. Veuillez recommencer");
+                comment = readString();
+            }
 
             Map<EvaluationCriteria, Integer> gradesMap = new HashMap<>();
+            Set<EvaluationCriteria> criteriaSet = evaluationService.getAllCriteria();
+
+            if (criteriaSet.isEmpty()) {
+                System.out.println("Aucun critère d'évaluation disponible");
+            }
+
+            System.out.println("Veuillez saisir des notes entre 1 et 5 pour les différentes catégories");
 
             for (EvaluationCriteria criteria : evaluationService.getAllCriteria()) {
                 System.out.println(criteria.getName() + " : " + criteria.getDescription());
                 Integer note = readInt();
+
+                while (note < 1 || note > 5) {
+                    System.out.println("La note pour "+ criteria.getName()+" : "+criteria.getDescription()+" doit être en 1 et 5");
+                    note = readInt();
+                }
+
                 gradesMap.put(criteria, note);
             }
 
             evaluationService.evaluateRestaurant(restaurant, username, comment, gradesMap);
             System.out.println("Votre évaluation a bien été enregistrée, merci !");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Erreur : "+ e.getMessage());
         } catch (Exception ex) {
             System.out.println("Une erreur est survenue lors de l'enregistrement de votre évaluation : " + ex.getMessage());
-            logger.error("Erreur lors de l'évaluation d'un restaurant", ex);
+            logger.error("Erreur lors de l'évaluation d'un restaurant ", ex);
         }
     }
 
@@ -463,14 +573,38 @@ public class Application {
         System.out.println("Edition d'un restaurant !");
 
         System.out.println("Nouveau nom : ");
-        restaurant.setName(readString());
-        System.out.println("Nouvelle description : ");
-        restaurant.setDescription(readString());
-        System.out.println("Nouveau site web : ");
-        restaurant.setWebsite(readString());
-        System.out.println("Nouveau type de restaurant : ");
+        String newName = readString();
+        while (newName == null || newName.trim().isEmpty()) {
+            System.out.println("Le nom ne peut pas être vide");
+            newName = readString();
+        }
+        restaurant.setName(newName);
 
-        RestaurantType newType = pickRestaurantType(restaurantService.getAllRestaurantsTypes());
+        System.out.println("Nouvelle description : ");
+        String newDescription = readString();
+        while (newDescription == null || newDescription.trim().isEmpty()) {
+            System.out.println("La description ne peut pas être vide");
+            newDescription = readString();
+        }
+        restaurant.setDescription(newDescription);
+
+        System.out.println("Nouveau site web : ");
+        String newWebsite = readString();
+        while (newWebsite == null || newWebsite.trim().isEmpty()){
+            System.out.println("Le lien pour le site web ne peut pas être vide");
+            newWebsite = readString();
+        }
+        restaurant.setWebsite(newWebsite);
+
+
+        System.out.println("Nouveau type de restaurant : ");
+        RestaurantType newType = null;
+        while (newType == null){
+            newType = pickRestaurantType(restaurantService.getAllRestaurantsTypes());
+            if (newType == null) {
+                System.out.println("Type invalide. Veuillez choisir un type de la liste");
+            }
+        }
         try {
             restaurantService.editRestaurantType(restaurant, newType);
             restaurantService.updateRestaurant(restaurant);
@@ -491,16 +625,32 @@ public class Application {
         System.out.println("Edition de l'adresse d'un restaurant !");
 
         System.out.println("Nouvelle rue : ");
-        restaurant.getAddress().setStreet(readString());
+        String newStreet = readString();
+        while (newStreet == null || newStreet.trim().isEmpty()) {
+            System.out.println("La rue ne peut pas être vide");
+            newStreet = readString();
+        }
+        restaurant.getAddress().setStreet(newStreet);
 
-        City newCity = pickCity(restaurantService.getAllCities());
+        System.out.println("Nouvelle ville : ");
+        City newCity = null;
+        do {
+            newCity = pickCity(restaurantService.getAllCities());
+            if (newCity == null) {
+                System.out.println("Vous devez sélectionner une ville");
+            }
+        } while (newCity == null);
+
         try {
-            if (newCity != null && newCity != restaurant.getAddress().getCity()) {
+            if (newCity != restaurant.getAddress().getCity()) {
                 restaurantService.editRestaurantAddress(restaurant, newCity);
             }
 
             restaurantService.updateRestaurant(restaurant);
             System.out.println("L'adresse a bien été modifiée ! Merci !");
+
+        } catch (IllegalArgumentException e){
+            System.out.println("Erreur de validation : " + e.getMessage());
         } catch (Exception ex) {
             System.out.println("Erreur lors de la modification de l'adresse du restaurant. Veuillez réessayer.");
             logger.error("Impossible de mettre à jour l'adresse du restaurant : " + restaurant.getName(), ex);
