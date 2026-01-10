@@ -28,41 +28,86 @@ public class RestaurantService implements IRestaurantService {
 
     // ------------------- READ (pas de transaction) -------------------
 
+    /**
+     * Récupère l'ensemble des restaurants
+     *
+     * @return Un ensemble de tous les restaurants
+     */
     @Override
     public Set<Restaurant> getAllRestaurants() {
         return restaurantMapper.findAll();
     }
 
+    /**
+     * Recherche des restaurants par nom (recherche partielle)
+     *
+     * @param research Le terme de recherche
+     * @return Un ensemble de restaurants dont le nom correspond à la recherche
+     */
     @Override
     public Set<Restaurant> getRestaurantsByName(String research) {
         return restaurantMapper.findByName(research);
     }
 
+    /**
+     * Recherche un restaurant par son nom exact
+     *
+     * @param name Le nom exact du restaurant
+     * @return Le restaurant correspondant ou null si non trouvé
+     */
     @Override
     public Restaurant getRestaurantByExactName(String name) {
         return restaurantMapper.findByExactName(name);
     }
 
+    /**
+     * Recherche des restaurants par ville
+     *
+     * @param research Le nom de la ville recherchée
+     * @return Un ensemble de restaurants situés dans la ville correspondante
+     */
     @Override
     public Set<Restaurant> getRestaurantsByCity(String research) {
         return restaurantMapper.findByCity(research);
     }
 
+    /**
+     * Récupère les restaurants d'un type donné
+     *
+     * @param restaurantType Le type de restaurant
+     * @return Un ensemble de restaurants du type spécifié
+     */
     @Override
     public Set<Restaurant> getRestaurantsByType(RestaurantType restaurantType) {
         return restaurantMapper.findByType(restaurantType.getLabel());
     }
 
+    /**
+     * Récupère l'ensemble des types de restaurants disponibles
+     *
+     * @return Un ensemble de tous les types de restaurants
+     */
     @Override
     public Set<RestaurantType> getAllRestaurantsTypes() {
         return restaurantTypeMapper.findAll();
     }
 
+    /**
+     * Recherche un type de restaurant par son libellé
+     *
+     * @param label Le libellé du type de restaurant
+     * @return Le type de restaurant correspondant ou null si non trouvé
+     */
     @Override
     public RestaurantType getRestaurantTypeByLabel(String label) {
         return restaurantTypeMapper.findByLabel(label);
     }
 
+    /**
+     * Récupère l'ensemble des villes
+     *
+     * @return Un ensemble de toutes les villes
+     */
     @Override
     public Set<City> getAllCities() {
         return cityMapper.findAll();
@@ -70,6 +115,20 @@ public class RestaurantService implements IRestaurantService {
 
     // ------------------- WRITE (Transaction) -------------------
 
+    /**
+     * Crée un nouveau restaurant dans la base de données
+     *
+     * @param id L'identifiant du restaurant (peut être null pour génération automatique)
+     * @param name Le nom du restaurant
+     * @param description La description du restaurant
+     * @param website Le site web du restaurant
+     * @param street La rue/adresse du restaurant
+     * @param city La ville où se situe le restaurant
+     * @param restaurantType Le type de restaurant
+     * @return Le restaurant créé
+     * @throws Exception Si une erreur survient lors de la transaction
+     * @throws IllegalArgumentException Si le nom est vide, la ville ou le type est null
+     */
     @Override
     public Restaurant createRestaurant(Integer id, String name, String description, String website, String street, City city, RestaurantType restaurantType) throws Exception {
         if (name == null || name.trim().isEmpty()) {
@@ -82,17 +141,26 @@ public class RestaurantService implements IRestaurantService {
             throw new IllegalArgumentException("Le type de restaurant ne peut pas être null");
         }
         return JpaUtils.inTransactionWithResult(em -> {
-                    City managedCity = em.merge(city);  // This will handle both new and existing cities
+            City managedCity = em.merge(city);
 
-                    RestaurantType managedType = em.merge(restaurantType);
+            RestaurantType managedType = em.merge(restaurantType);
 
-                    Restaurant newRestaurant = new Restaurant(null, name, description, website,
+            Restaurant newRestaurant = new Restaurant(null, name, description, website,
                             street, managedCity, managedType);
-                    em.persist(newRestaurant);
-                    return newRestaurant;
-                });
+            em.persist(newRestaurant);
+            return newRestaurant;
+        });
     }
 
+    /**
+     * Crée une nouvelle ville ou retourne la ville existante si elle existe déjà
+     *
+     * @param zipCode Le code postal de la ville
+     * @param cityName Le nom de la ville
+     * @return La ville créée ou existante
+     * @throws Exception Si une erreur survient lors de la transaction
+     * @throws IllegalArgumentException Si le code postal ou le nom est vide
+     */
     @Override
     public City createCity(String zipCode, String cityName) throws Exception {
 
@@ -103,14 +171,14 @@ public class RestaurantService implements IRestaurantService {
             throw new IllegalArgumentException("Le nom de la ville ne peut pas être vide");
         }
 
-        //voir s il y a pas deja une ville qui existe
+        // vérifier si une ville avec ce ZIP Code existe déjà - réutiliser
         for (City city : getAllCities()) {
             if (city.getZipCode().equals(zipCode)) {
-                return city; // reuse existing city
+                return city;
             }
         }
 
-        //ville existe pas encore - on la crée
+        // ville n'existe pas encore - création
         return JpaUtils.inTransactionWithResult(em -> {
             City newCity = new City(zipCode, cityName);
             em.persist(newCity);
@@ -119,6 +187,13 @@ public class RestaurantService implements IRestaurantService {
         });
     }
 
+    /**
+     * Met à jour un restaurant existant
+     *
+     * @param restaurant Le restaurant à mettre à jour (doit avoir un ID)
+     * @throws Exception Si une erreur survient lors de la transaction
+     * @throws IllegalArgumentException Si le restaurant est null ou n'a pas d'ID
+     */
     @Override
     public void updateRestaurant(Restaurant restaurant) throws Exception {
         if (restaurant == null || restaurant.getId() == null) {
@@ -130,6 +205,13 @@ public class RestaurantService implements IRestaurantService {
         });
     }
 
+    /**
+     * Supprime un restaurant de la base de données
+     *
+     * @param restaurant Le restaurant à supprimer (doit avoir un ID)
+     * @throws Exception Si une erreur survient lors de la transaction
+     * @throws IllegalArgumentException Si le restaurant est null ou n'a pas d'ID
+     */
     @Override
     public void deleteRestaurant(Restaurant restaurant) throws Exception {
         if (restaurant == null || restaurant.getId() == null) {
@@ -141,6 +223,14 @@ public class RestaurantService implements IRestaurantService {
         });
     }
 
+    /**
+     * Modifie l'adresse d'un restaurant en changeant sa ville.
+     * Gère les relations bidirectionnelles entre le restaurant et les villes.
+     *
+     * @param restaurant Le restaurant dont l'adresse doit être modifiée
+     * @param newCity La nouvelle ville du restaurant
+     * @throws Exception Si une erreur survient lors de la transaction
+     */
     @Override
     public void editRestaurantAddress(Restaurant restaurant, City newCity) throws Exception {
         if (newCity != null && newCity != restaurant.getAddress().getCity()) {
@@ -165,10 +255,18 @@ public class RestaurantService implements IRestaurantService {
         }
     }
 
+    /**
+     * Modifie le type d'un restaurant
+     *
+     * @param restaurant Le restaurant dont le type doit être modifié
+     * @param newType Le nouveau type de restaurant
+     * @throws Exception Si une erreur survient lors de la transaction
+     */
     @Override
     public void editRestaurantType(Restaurant restaurant, RestaurantType newType) throws Exception {
         JpaUtils.inTransaction(em -> {
             Restaurant managedRestaurant = em.contains(restaurant) ? restaurant : em.merge(restaurant);
+            //si le type de restaurant est nouveau (pas d'ID), on le sauvegarde d'abord
             RestaurantType managedType = newType.getId() == null ? restaurantTypeMapper.save(newType) : em.merge(newType);
             managedRestaurant.setType(managedType);
         });

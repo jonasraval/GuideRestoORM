@@ -25,17 +25,39 @@ public class EvaluationService implements IEvaluationService {
 
 
     // ------------------- READ (pas de transaction) -------------------
+    /**
+     * Récupère l'ensemble des critères d'évaluation disponibles
+     *
+     * @return Un ensemble de tous les critères d'évaluation (Service, Cuisine, Cadre etc..)
+     */
     @Override
     public Set<EvaluationCriteria> getAllCriteria() {
         return evaluationCriteriaMapper.findAll();
     }
 
+    /**
+     * Compte le nombre de likes ou dislikes pour un restaurant donné
+     *
+     * @param id L'identifiant du restaurant
+     * @param like True pour compter les likes, false pour compter les dislikes
+     * @return Le nombre de likes ou dislikes
+     */
     @Override
     public Long countLikesForRestaurantId(Integer id, boolean like) {
         return basicEvaluationMapper.countLikesForRestaurant(id, like);
     }
 
     // ------------------- WRITE (Transaction) -------------------
+    /**
+     * Ajoute une évaluation basique (like/dislike) à un restaurant
+     *
+     * @param restaurant Le restaurant à évaluer
+     * @param like True pour un like, false pour un dislike
+     * @param ipAddress L'adresse IP de l'utilisateur
+     * @return L'évaluation basique créée
+     * @throws Exception Si une erreur survient lors de la transaction
+     * @throws IllegalArgumentException Si un des paramètres est null
+     */
     @Override
     public BasicEvaluation addBasicEvaluation(Restaurant restaurant, Boolean like, String ipAddress) throws Exception {
         if (restaurant == null) {
@@ -48,6 +70,7 @@ public class EvaluationService implements IEvaluationService {
             throw new IllegalArgumentException("L'adresse IP ne peut pas être null");
         }
         return JpaUtils.inTransactionWithResult(em -> {
+            // s'assurer que le restaurant est géré par l'EntityManager actuel
             Restaurant managedRestaurant = em.contains(restaurant) ? restaurant : em.merge(restaurant);
 
             BasicEvaluation newBasicEvaluation = new BasicEvaluation(
@@ -59,11 +82,23 @@ public class EvaluationService implements IEvaluationService {
             );
             em.persist(newBasicEvaluation);
 
+            // maintient relation bidirectionnelle
             managedRestaurant.getEvaluations().add(newBasicEvaluation);
             return newBasicEvaluation;
         });
     }
 
+    /**
+     * Crée une évaluation complète pour un restaurant avec commentaire et notes par critère
+     *
+     * @param restaurant Le restaurant à évaluer
+     * @param username Le nom de l'utilisateur qui évalue
+     * @param comment Le commentaire de l'évaluation
+     * @param gradesMap Une map associant chaque critère d'évaluation à une note (1-5)
+     * @return L'évaluation complète créée
+     * @throws Exception Si une erreur survient lors de la transaction
+     * @throws IllegalArgumentException Si un paramètre est null, vide ou si une note n'est pas entre 1 et 5
+     */
     @Override
     public CompleteEvaluation evaluateRestaurant(Restaurant restaurant, String username, String comment, Map<EvaluationCriteria, Integer> gradesMap) throws Exception {
         if (restaurant == null) {
@@ -79,6 +114,7 @@ public class EvaluationService implements IEvaluationService {
             throw new IllegalArgumentException("Il faut au moins une note");
         }
         return JpaUtils.inTransactionWithResult(em -> {
+            // s'assurer que le restaurant est géré par l'EntityManager actuel
             Restaurant managedRestaurant = em.contains(restaurant) ? restaurant : em.merge(restaurant);
 
             CompleteEvaluation newCompleteEvaluation = new CompleteEvaluation(
@@ -95,10 +131,12 @@ public class EvaluationService implements IEvaluationService {
             // Avec var le compilateur arrive à déduire automatiquement grâce à l'entrySet le type (inférence)
             for (var entry : gradesMap.entrySet()) {
                 Integer gradeValue = entry.getValue();
+                // validation de la note
                 if (gradeValue == null || gradeValue < 1 || gradeValue > 5) {
                     throw new IllegalArgumentException("La note doit être entre 1 et 5");
                 }
 
+                // s'assurer que le critère est géré par l'EntityManager actuel
                 EvaluationCriteria managedCriteria = em.merge(entry.getKey());
 
                 Grade grade = new Grade(
@@ -107,8 +145,10 @@ public class EvaluationService implements IEvaluationService {
                         managedCriteria
                 );
                 em.persist(grade);
+                // maintenir relation bidirectionnelle
                 newCompleteEvaluation.getGrades().add(grade);
             }
+            // maintenir relation bidirectionnelle
             managedRestaurant.addEvaluation(newCompleteEvaluation);
             return newCompleteEvaluation;
         });

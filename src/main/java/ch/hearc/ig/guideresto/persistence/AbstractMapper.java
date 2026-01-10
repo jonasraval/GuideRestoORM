@@ -6,7 +6,6 @@ import jakarta.persistence.EntityManager;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
 public abstract class AbstractMapper<T extends IBusinessObject> {
     protected EntityManager em;
     private final Class<T> type;
@@ -20,7 +19,7 @@ public abstract class AbstractMapper<T extends IBusinessObject> {
         return em.createNamedQuery(type.getSimpleName()+".findById",type)
                 .setParameter("id", id)
                 .getSingleResult();
-    } //possible de faire avec un em.find(type, id) mais il nous est demandé d'utiliser JPQL
+    }
 
     public Set<T> findAll() {
         return em.createNamedQuery(type.getSimpleName()+".findAll",type).getResultStream().collect(Collectors.toUnmodifiableSet());
