@@ -1,7 +1,0 @@
-jakarta.persistence.jdbc.url=jdbc:oracle:thin:@db.ig.he-arc.ch:1521:ens
-jakarta.persistence.jdbc.user=JONAS_RAVAL
-jakarta.persistence.jdbc.password=JONAS_RAVAL
-jakarta.persistence.jdbc.driver=oracle.jdbc.OracleDriver
-hibernate.show_sql=true
-hibernate.format_sql=true
-hibernate.generate_statistics=true
