@@ -4,6 +4,7 @@ import ch.hearc.ig.guideresto.business.*;
 import ch.hearc.ig.guideresto.persistence.BasicEvaluationMapper;
 import ch.hearc.ig.guideresto.persistence.CompleteEvaluationMapper;
 import ch.hearc.ig.guideresto.persistence.EvaluationCriteriaMapper;
+import ch.hearc.ig.guideresto.persistence.RestaurantMapper;
 import ch.hearc.ig.guideresto.persistence.jpa.JpaUtils;
 import jakarta.persistence.EntityManager;
 
@@ -15,12 +16,14 @@ public class EvaluationService implements IEvaluationService {
     private final BasicEvaluationMapper basicEvaluationMapper;
     private final CompleteEvaluationMapper completeEvaluationMapper;
     private final EvaluationCriteriaMapper evaluationCriteriaMapper;
+    private final RestaurantMapper restaurantMapper;
 
     public EvaluationService() {
         EntityManager em = JpaUtils.getEntityManager();
         this.basicEvaluationMapper = new BasicEvaluationMapper(BasicEvaluation.class, em);
         this.completeEvaluationMapper = new CompleteEvaluationMapper(CompleteEvaluation.class, em);
         this.evaluationCriteriaMapper = new EvaluationCriteriaMapper(EvaluationCriteria.class, em);
+        this.restaurantMapper = new RestaurantMapper(Restaurant.class, em);
     }
 
 
@@ -71,7 +74,11 @@ public class EvaluationService implements IEvaluationService {
         }
         return JpaUtils.inTransactionWithResult(em -> {
             // s'assurer que le restaurant est géré par l'EntityManager actuel
-            Restaurant managedRestaurant = em.contains(restaurant) ? restaurant : em.merge(restaurant);
+            //Restaurant managedRestaurant = em.contains(restaurant) ? restaurant : em.merge(restaurant);
+            Restaurant managedRestaurant = em.getReference(Restaurant.class, restaurant.getId());
+            if (managedRestaurant == null) {
+                throw new IllegalArgumentException("Restaurant introuvable en base !");
+            }
 
             BasicEvaluation newBasicEvaluation = new BasicEvaluation(
                     null,
@@ -115,7 +122,11 @@ public class EvaluationService implements IEvaluationService {
         }
         return JpaUtils.inTransactionWithResult(em -> {
             // s'assurer que le restaurant est géré par l'EntityManager actuel
-            Restaurant managedRestaurant = em.contains(restaurant) ? restaurant : em.merge(restaurant);
+            //Restaurant managedRestaurant = em.contains(restaurant) ? restaurant : em.merge(restaurant);
+            Restaurant managedRestaurant = em.getReference(Restaurant.class, restaurant.getId());
+            if (managedRestaurant == null) {
+                throw new IllegalArgumentException("Restaurant introuvable en base !");
+            }
 
             CompleteEvaluation newCompleteEvaluation = new CompleteEvaluation(
                     null,

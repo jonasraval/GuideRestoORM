@@ -25,15 +25,6 @@ public abstract class AbstractMapper<T extends IBusinessObject> {
         return em.createNamedQuery(type.getSimpleName()+".findAll",type).getResultStream().collect(Collectors.toUnmodifiableSet());
     }
 
-    public T save(T entity) {
-        if (entity.getId() == null) {
-            em.persist(entity);
-            return entity;
-        } else {
-            return em.merge(entity);
-        }
-    }
-
     public void delete(T entity) {
         T managed = em.contains(entity) ? entity : em.merge(entity);
         em.remove(managed);

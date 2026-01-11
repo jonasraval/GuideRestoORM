@@ -414,7 +414,9 @@ public class Application {
         do {
             showRestaurantMenu();
             choice = readInt();
+
             proceedRestaurantMenu(choice, restaurant);
+            //proceedRestaurantMenu(choice, restaurant);
         } while (choice != 0 && choice != 6);
     }
 
@@ -610,13 +612,8 @@ public class Application {
             restaurantService.editRestaurantType(restaurant, newType);
             restaurantService.updateRestaurant(restaurant);
             System.out.println("Merci, le restaurant a bien été modifié !");
-        }catch (OptimisticLockException oe) {
-            System.out.println("CONFLIT : Le restaurant a été modifié par quelqu'un d'autre.");
-            System.out.println("Veuillez recharger les données et réessayer.");
-            logger.warn("Optimistic lock conflict for restaurant: " + restaurant.getName());
         } catch (Exception ex) {
-            System.out.println("Erreur lors de la modification du restaurant. Veuillez réessayer.");
-            logger.error("Impossible de mettre à jour le restaurant : " + restaurant.getName(), ex);
+            System.out.println(ex.getMessage());
         }
     }
 
@@ -650,19 +647,10 @@ public class Application {
             if (newCity != restaurant.getAddress().getCity()) {
                 restaurantService.editRestaurantAddress(restaurant, newCity);
             }
-
             restaurantService.updateRestaurant(restaurant);
             System.out.println("L'adresse a bien été modifiée ! Merci !");
-
-        } catch (IllegalArgumentException e) {
-            System.out.println("Erreur de validation : " + e.getMessage());
-        } catch (OptimisticLockException oe) {
-            System.out.println("CONFLIT : Le restaurant a été modifié par quelqu'un d'autre.");
-            System.out.println("Veuillez recharger les données et réessayer.");
-            logger.warn("Optimistic lock conflict for restaurant: " + restaurant.getName());
         } catch (Exception ex) {
-            System.out.println("Erreur lors de la modification de l'adresse du restaurant. Veuillez réessayer.");
-            logger.error("Impossible de mettre à jour l'adresse du restaurant : " + restaurant.getName(), ex);
+            System.out.println(ex.getMessage());
         }
     }
 
@@ -673,18 +661,23 @@ public class Application {
      */
     private static void deleteRestaurant(Restaurant restaurant) {
         System.out.println("Etes-vous sûr de vouloir supprimer ce restaurant ? (O/n)");
-        String choice = readString();
-        if (choice.equalsIgnoreCase("o")) {
-            try {
-                restaurantService.deleteRestaurant(restaurant);
-                System.out.println("Le restaurant a bien été supprimé !");
-            } catch (Exception ex) {
-                System.out.println("Erreur lors de la suppression du restaurant. Veuillez réessayer.");
-                logger.error("Impossible de supprimer le restaurant : " + restaurant.getName(), ex);
+        try {
+            String choice = readString();
+            if (choice.equalsIgnoreCase("o")) {
+                try {
+                    restaurantService.deleteRestaurant(restaurant);
+                    System.out.println("Le restaurant a bien été supprimé !");
+                } catch (Exception ex) {
+                    System.out.println("Erreur lors de la suppression du restaurant. Veuillez réessayer.");
+                    logger.error("Impossible de supprimer le restaurant : " + restaurant.getName(), ex);
+                }
+            } else {
+                System.out.println("Suppression annulée.");
             }
-        } else {
-            System.out.println("Suppression annulée.");
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
         }
+
     }
 
     /**
@@ -735,6 +728,17 @@ public class Application {
      */
     private static String readString() {
         return scanner.nextLine();
+    }
+
+    /**
+     * Recharge un restaurant depuis la base de données avec ses données les plus récentes
+     *
+     * @param restaurant Le restaurant à recharger
+     * @return Le restaurant rechargé, ou null si introuvable
+     */
+    private static Restaurant reloadRestaurant(Restaurant restaurant) {
+        if (restaurant == null) return null;
+        return restaurantService.getRestaurantByExactName(restaurant.getName());
     }
 
 }

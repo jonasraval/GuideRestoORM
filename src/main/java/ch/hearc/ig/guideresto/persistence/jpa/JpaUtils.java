@@ -47,12 +47,6 @@ public class JpaUtils {
             consumer.accept(em);
             em.flush();
             transaction.commit();
-        } catch (OptimisticLockException ex) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-            System.err.println("Conflit de verrouillage optimiste : " + ex.getMessage());
-            throw ex;
         } catch (Exception ex) {
             if (transaction.isActive()) {
                 transaction.rollback();
@@ -81,12 +75,6 @@ public class JpaUtils {
             em.flush();
             transaction.commit();
             return result;
-        } catch (OptimisticLockException ex) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-            System.err.println("Conflit de verrouillage optimiste : " + ex.getMessage());
-            throw ex;
         } catch (Exception ex) {
             if (transaction.isActive()) {
                 transaction.rollback();
