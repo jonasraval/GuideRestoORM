@@ -4,6 +4,7 @@ import ch.hearc.ig.guideresto.business.*;
 import ch.hearc.ig.guideresto.persistence.jpa.JpaUtils;
 import ch.hearc.ig.guideresto.service.EvaluationService;
 import ch.hearc.ig.guideresto.service.RestaurantService;
+import jakarta.persistence.OptimisticLockException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -609,6 +610,10 @@ public class Application {
             restaurantService.editRestaurantType(restaurant, newType);
             restaurantService.updateRestaurant(restaurant);
             System.out.println("Merci, le restaurant a bien été modifié !");
+        }catch (OptimisticLockException oe) {
+            System.out.println("CONFLIT : Le restaurant a été modifié par quelqu'un d'autre.");
+            System.out.println("Veuillez recharger les données et réessayer.");
+            logger.warn("Optimistic lock conflict for restaurant: " + restaurant.getName());
         } catch (Exception ex) {
             System.out.println("Erreur lors de la modification du restaurant. Veuillez réessayer.");
             logger.error("Impossible de mettre à jour le restaurant : " + restaurant.getName(), ex);
@@ -649,8 +654,12 @@ public class Application {
             restaurantService.updateRestaurant(restaurant);
             System.out.println("L'adresse a bien été modifiée ! Merci !");
 
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             System.out.println("Erreur de validation : " + e.getMessage());
+        } catch (OptimisticLockException oe) {
+            System.out.println("CONFLIT : Le restaurant a été modifié par quelqu'un d'autre.");
+            System.out.println("Veuillez recharger les données et réessayer.");
+            logger.warn("Optimistic lock conflict for restaurant: " + restaurant.getName());
         } catch (Exception ex) {
             System.out.println("Erreur lors de la modification de l'adresse du restaurant. Veuillez réessayer.");
             logger.error("Impossible de mettre à jour l'adresse du restaurant : " + restaurant.getName(), ex);

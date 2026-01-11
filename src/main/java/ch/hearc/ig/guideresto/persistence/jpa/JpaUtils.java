@@ -1,9 +1,7 @@
 package ch.hearc.ig.guideresto.persistence.jpa;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityTransaction;
-import jakarta.persistence.Persistence;
+import jakarta.persistence.*;
+
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -38,6 +36,7 @@ public class JpaUtils {
      * Gère automatiquement le début, le commit et le rollback en cas d'erreur.
      *
      * @param consumer La fonction à exécuter dans la transaction, reçoit l'EntityManager en paramètre
+     * @throws OptimisticLockException Si un conflit de verrouillage optimiste survient
      * @throws RuntimeException Si une erreur survient pendant la transaction (rollback automatique)
      */
     public static void inTransaction(Consumer<EntityManager> consumer) {
@@ -48,6 +47,12 @@ public class JpaUtils {
             consumer.accept(em);
             em.flush();
             transaction.commit();
+        } catch (OptimisticLockException ex) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            System.err.println("Conflit de verrouillage optimiste : " + ex.getMessage());
+            throw ex;
         } catch (Exception ex) {
             if (transaction.isActive()) {
                 transaction.rollback();
@@ -64,6 +69,7 @@ public class JpaUtils {
      * @param <T> Le type du résultat retourné
      * @param function La fonction à exécuter dans la transaction, reçoit l'EntityManager et retourne un résultat
      * @return Le résultat de la fonction exécutée
+     * @throws OptimisticLockException Si un conflit de verrouillage optimiste survient
      * @throws RuntimeException Si une erreur survient pendant la transaction (rollback automatique)
      */
     public static <T> T inTransactionWithResult(Function<EntityManager, T> function) {
@@ -75,6 +81,12 @@ public class JpaUtils {
             em.flush();
             transaction.commit();
             return result;
+        } catch (OptimisticLockException ex) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            System.err.println("Conflit de verrouillage optimiste : " + ex.getMessage());
+            throw ex;
         } catch (Exception ex) {
             if (transaction.isActive()) {
                 transaction.rollback();

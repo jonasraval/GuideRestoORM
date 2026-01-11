@@ -200,15 +200,9 @@ public class RestaurantService implements IRestaurantService {
         if (restaurant == null || restaurant.getId() == null) {
             throw new IllegalArgumentException("Le restaurant doit avoir un ID pour être mis à jour");
         }
-        try {
             JpaUtils.inTransaction(em -> {
                 restaurantMapper.save(restaurant);
             });
-
-        } catch (OptimisticLockException op) {
-            throw new OptimisticLockException("Le restaurant a été modifié par un autre utilisateur. :"+op.getMessage());
-        }
-
     }
 
     /**
