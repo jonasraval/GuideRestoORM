@@ -13,7 +13,7 @@ DROP TABLE LIKES CASCADE CONSTRAINTS;
 DROP TABLE NOTES CASCADE CONSTRAINTS;
 DROP TABLE CRITERES_EVALUATION CASCADE CONSTRAINTS;
 
-CREATE TABLE RESTAURANTS (numero number(10) NOT NULL, nom varchar2(100) NOT NULL, adresse varchar2(100) NOT NULL, description clob, site_web varchar2(100), fk_type number(10) NOT NULL, fk_vill number(10) NOT NULL, PRIMARY KEY (numero));
+CREATE TABLE RESTAURANTS (numero number(10) NOT NULL, nom varchar2(100) NOT NULL, adresse varchar2(100) NOT NULL, description clob, site_web varchar2(100),version number(10) NOT NULL, fk_type number(10) NOT NULL, fk_vill number(10) NOT NULL, PRIMARY KEY (numero));
 CREATE TABLE TYPES_GASTRONOMIQUES (numero number(10) NOT NULL, libelle varchar2(100) NOT NULL UNIQUE, description clob NOT NULL, PRIMARY KEY (numero));
 CREATE TABLE VILLES (numero number(10) NOT NULL, code_postal varchar2(100) NOT NULL, nom_ville varchar2(100) NOT NULL, PRIMARY KEY (numero));
 CREATE TABLE COMMENTAIRES (numero number(10) NOT NULL, date_eval date NOT NULL, commentaire clob NOT NULL, nom_utilisateur varchar2(100) NOT NULL, fk_rest number(10), PRIMARY KEY (numero));
