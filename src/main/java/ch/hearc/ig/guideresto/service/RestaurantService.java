@@ -202,8 +202,7 @@ public class RestaurantService implements IRestaurantService {
                 throw new IllegalArgumentException("Le restaurant doit avoir un ID pour être mis à jour");
             }
             JpaUtils.inTransaction(em -> {
-                Restaurant managedRestaurant = em.getReference(restaurant.getClass(), restaurant.getId());
-                em.persist(managedRestaurant);
+                em.merge(restaurant);
             });
         } catch (OptimisticLockException e) {
             throw new Exception("Le restaurant n'a pas pu être mis à jour car quelqu'un d'autre le modifie.");

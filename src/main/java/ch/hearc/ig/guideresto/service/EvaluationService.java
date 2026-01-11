@@ -67,8 +67,6 @@ public class EvaluationService implements IEvaluationService {
             throw new IllegalArgumentException("L'adresse IP ne peut pas être null");
         }
         return JpaUtils.inTransactionWithResult(em -> {
-            // s'assurer que le restaurant est géré par l'EntityManager actuel
-            //Restaurant managedRestaurant = em.contains(restaurant) ? restaurant : em.merge(restaurant);
             Restaurant managedRestaurant = em.getReference(Restaurant.class, restaurant.getId());
             if (managedRestaurant == null) {
                 throw new IllegalArgumentException("Restaurant introuvable en base !");
@@ -115,8 +113,6 @@ public class EvaluationService implements IEvaluationService {
             throw new IllegalArgumentException("Il faut au moins une note");
         }
         return JpaUtils.inTransactionWithResult(em -> {
-            // s'assurer que le restaurant est géré par l'EntityManager actuel
-            //Restaurant managedRestaurant = em.contains(restaurant) ? restaurant : em.merge(restaurant);
             Restaurant managedRestaurant = em.getReference(Restaurant.class, restaurant.getId());
             if (managedRestaurant == null) {
                 throw new IllegalArgumentException("Restaurant introuvable en base !");
