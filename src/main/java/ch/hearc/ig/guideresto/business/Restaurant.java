@@ -59,6 +59,10 @@ public class Restaurant implements IBusinessObject {
     @JoinColumn(name = "fk_type", nullable = false)
     private RestaurantType type;
 
+    @Version
+    private int version;
+
+
     public Restaurant() {
         this(null, null, null, null, null, null);
     }
@@ -158,5 +162,9 @@ public class Restaurant implements IBusinessObject {
                 ", type=" + type +
                 ", evaluationsCount=" + (evaluations != null ? evaluations.size() : 0) +
                 '}';
+    }
+
+    public int getVersion() {
+        return version;
     }
 }

@@ -8,6 +8,7 @@ import ch.hearc.ig.guideresto.persistence.RestaurantMapper;
 import ch.hearc.ig.guideresto.persistence.RestaurantTypeMapper;
 import ch.hearc.ig.guideresto.persistence.jpa.JpaUtils;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.OptimisticLockException;
 
 import java.util.Set;
 
@@ -199,10 +200,15 @@ public class RestaurantService implements IRestaurantService {
         if (restaurant == null || restaurant.getId() == null) {
             throw new IllegalArgumentException("Le restaurant doit avoir un ID pour être mis à jour");
         }
-        JpaUtils.inTransaction(em -> {
-            restaurantMapper.save(restaurant);
+        try {
+            JpaUtils.inTransaction(em -> {
+                restaurantMapper.save(restaurant);
+            });
 
-        });
+        } catch (OptimisticLockException op) {
+            throw new OptimisticLockException("Le restaurant a été modifié par un autre utilisateur. :"+op.getMessage());
+        }
+
     }
 
     /**
