@@ -421,7 +421,7 @@ public class Application {
     /**
      * Retourne un String qui contient le détail complet d'une évaluation si elle est de type "CompleteEvaluation". Retourne null s'il s'agit d'une BasicEvaluation
      *
-     * @param --eval L'évaluation à afficher
+     * @param eval L'évaluation à afficher
      * @return Un String qui contient le détail complet d'une CompleteEvaluation, ou null s'il s'agit d'une BasicEvaluation
      */
     private static String getCompleteEvaluationDescription(Evaluation eval) {

@@ -202,7 +202,16 @@ public class RestaurantService implements IRestaurantService {
                 throw new IllegalArgumentException("Le restaurant doit avoir un ID pour être mis à jour");
             }
             JpaUtils.inTransaction(em -> {
-                em.merge(restaurant);
+                Restaurant managed = em.find(Restaurant.class, restaurant.getId());
+                if (managed == null) {
+                    throw new IllegalArgumentException("Restaurant introuvable en base !");
+                }
+
+                managed.setName(restaurant.getName());
+                managed.setDescription(restaurant.getDescription());
+                managed.setWebsite(restaurant.getWebsite());
+                managed.setType(restaurant.getType());
+                managed.setAddress(restaurant.getAddress());
             });
         } catch (OptimisticLockException e) {
             throw new Exception("Le restaurant n'a pas pu être mis à jour car quelqu'un d'autre le modifie.");
@@ -233,6 +242,8 @@ public class RestaurantService implements IRestaurantService {
             });
         } catch (OptimisticLockException e) {
             throw new Exception("Le restaurant n'a pas pu être mis à jour car quelqu'un d'autre le modifie.");
+        } catch (Exception e) {
+            throw new Exception("Une erreur s'est produite lors de la suppression du restaurant.");
         }
     }
 
