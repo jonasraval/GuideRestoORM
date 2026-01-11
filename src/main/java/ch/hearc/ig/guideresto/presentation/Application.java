@@ -4,7 +4,6 @@ import ch.hearc.ig.guideresto.business.*;
 import ch.hearc.ig.guideresto.persistence.jpa.JpaUtils;
 import ch.hearc.ig.guideresto.service.EvaluationService;
 import ch.hearc.ig.guideresto.service.RestaurantService;
-import jakarta.persistence.OptimisticLockException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -416,7 +415,6 @@ public class Application {
             choice = readInt();
 
             proceedRestaurantMenu(choice, restaurant);
-            //proceedRestaurantMenu(choice, restaurant);
         } while (choice != 0 && choice != 6);
     }
 

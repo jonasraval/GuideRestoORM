@@ -2,9 +2,7 @@ package ch.hearc.ig.guideresto.service;
 
 import ch.hearc.ig.guideresto.business.*;
 import ch.hearc.ig.guideresto.persistence.BasicEvaluationMapper;
-import ch.hearc.ig.guideresto.persistence.CompleteEvaluationMapper;
 import ch.hearc.ig.guideresto.persistence.EvaluationCriteriaMapper;
-import ch.hearc.ig.guideresto.persistence.RestaurantMapper;
 import ch.hearc.ig.guideresto.persistence.jpa.JpaUtils;
 import jakarta.persistence.EntityManager;
 
@@ -14,16 +12,12 @@ import java.util.Set;
 
 public class EvaluationService implements IEvaluationService {
     private final BasicEvaluationMapper basicEvaluationMapper;
-    private final CompleteEvaluationMapper completeEvaluationMapper;
     private final EvaluationCriteriaMapper evaluationCriteriaMapper;
-    private final RestaurantMapper restaurantMapper;
 
     public EvaluationService() {
         EntityManager em = JpaUtils.getEntityManager();
         this.basicEvaluationMapper = new BasicEvaluationMapper(BasicEvaluation.class, em);
-        this.completeEvaluationMapper = new CompleteEvaluationMapper(CompleteEvaluation.class, em);
         this.evaluationCriteriaMapper = new EvaluationCriteriaMapper(EvaluationCriteria.class, em);
-        this.restaurantMapper = new RestaurantMapper(Restaurant.class, em);
     }
 
 

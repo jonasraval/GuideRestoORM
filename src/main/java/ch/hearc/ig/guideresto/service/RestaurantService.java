@@ -146,8 +146,7 @@ public class RestaurantService implements IRestaurantService {
 
             RestaurantType managedType = em.merge(restaurantType);
 
-            Restaurant newRestaurant = new Restaurant(null, name, description, website,
-                            street, managedCity, managedType);
+            Restaurant newRestaurant = new Restaurant(null, name, description, website, street, managedCity, managedType);
             em.persist(newRestaurant);
             return newRestaurant;
         });
@@ -204,7 +203,7 @@ public class RestaurantService implements IRestaurantService {
             }
             JpaUtils.inTransaction(em -> {
                 Restaurant managedRestaurant = em.getReference(restaurant.getClass(), restaurant.getId());
-                em.persist(restaurant);
+                em.persist(managedRestaurant);
             });
         } catch (OptimisticLockException e) {
             throw new Exception("Le restaurant n'a pas pu être mis à jour car quelqu'un d'autre le modifie.");
@@ -224,14 +223,18 @@ public class RestaurantService implements IRestaurantService {
      */
     @Override
     public void deleteRestaurant(Restaurant restaurant) throws Exception {
-        if (restaurant == null || restaurant.getId() == null) {
-            throw new IllegalArgumentException("Le restaurant doit avoir un ID pour être supprimé");
-        }
+        try {
+            if (restaurant == null || restaurant.getId() == null) {
+                throw new IllegalArgumentException("Le restaurant doit avoir un ID pour être supprimé");
+            }
 
-        JpaUtils.inTransaction(em -> {
-            Restaurant managedRestaurant =  em.getReference(restaurant.getClass(), restaurant.getId());
-            restaurantMapper.delete(restaurant);
-        });
+            JpaUtils.inTransaction(em -> {
+                Restaurant managedRestaurant =  em.getReference(restaurant.getClass(), restaurant.getId());
+                restaurantMapper.delete(managedRestaurant);
+            });
+        } catch (OptimisticLockException e) {
+            throw new Exception("Le restaurant n'a pas pu être mis à jour car quelqu'un d'autre le modifie.");
+        }
     }
 
     /**
@@ -247,12 +250,7 @@ public class RestaurantService implements IRestaurantService {
     public void editRestaurantAddress(Restaurant restaurant, City newCity) throws Exception {
         try {
             JpaUtils.inTransaction(em -> {
-                // Récupérer les entités managées
-                //Restaurant managedRestaurant = em.contains(restaurant) ? restaurant : em.merge(restaurant);
                 Restaurant managedRestaurant = em.getReference(Restaurant.class, restaurant.getId());
-
-                //City managedNewCity = newCity.getId() == null ? cityMapper.save(newCity) : em.merge(newCity);
-                //City managedNewCity = newCity.getId() == null ? em.merge(newCity) : em.find(City.class, newCity.getId());
 
                 City managedNewCity;
                 if (newCity.getId() == null) {
@@ -310,9 +308,6 @@ public class RestaurantService implements IRestaurantService {
                         throw new IllegalArgumentException("Type de restaurant introuvable en base !");
                     }
                 }
-                //Restaurant managedRestaurant = em.contains(restaurant) ? restaurant : em.merge(restaurant);
-                //si le type de restaurant est nouveau (pas d'ID), on le sauvegarde d'abord
-                //RestaurantType managedType = newType.getId() == null ? restaurantTypeMapper.save(newType) : em.merge(newType);
                 managedRestaurant.setType(managedType);
             });
         } catch (OptimisticLockException ex) {
